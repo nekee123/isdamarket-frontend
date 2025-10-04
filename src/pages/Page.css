@@ -1,0 +1,49 @@
+body {
+  margin: 0;
+  font-family: "Comic Sans MS", cursive, sans-serif;
+  background: linear-gradient(135deg, #fddde6, #d4f1f9);
+}
+
+.homepage {
+  text-align: center;
+  padding: 50px;
+}
+
+.title {
+  font-size: 3rem;
+  color: #ff69b4;
+  text-shadow: 2px 2px #fff;
+}
+
+p {
+  font-size: 1.2rem;
+  color: #444;
+}
+
+.buttons {
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 15px 30px;
+  border-radius: 25px;
+  border: none;
+  margin: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.buyer-btn {
+  background: #ffb6c1;
+  color: white;
+}
+
+.seller-btn {
+  background: #87cefa;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
