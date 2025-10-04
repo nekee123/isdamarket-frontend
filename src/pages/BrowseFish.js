@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 function BrowseFish() {
   const [products, setProducts] = useState([]);
   const [sellerGroups, setSellerGroups] = useState({});
@@ -9,7 +11,7 @@ function BrowseFish() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/products/");
+        const res = await fetch(`${BASE_URL}/products/`);
         const data = await res.json();
         console.log("Fetched products:", data);
         setProducts(data);
@@ -46,20 +48,20 @@ function BrowseFish() {
     }
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/orders/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          buyer_uid,
-          buyer_name,
-          seller_uid: product.seller_uid,
-          seller_name: product.seller_name,
-          fish_product_uid: product.uid,
-          fish_product_name: product.name,
-          quantity: 1,
-          total_price: product.price,
-        }),
-      });
+  const res = await fetch(`${BASE_URL}/orders/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({
+      buyer_uid,
+      buyer_name,
+      seller_uid: product.seller_uid,
+      seller_name: product.seller_name,
+      fish_product_uid: product.uid,
+      fish_product_name: product.name,
+      quantity: 1,
+      total_price: product.price,
+      }),
+   });
 
       if (!res.ok) throw new Error("Failed to create order");
 

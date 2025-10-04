@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
+
 function SellerProducts() {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: "", type: "", price: "", quantity: "", description: "", image: "" });
@@ -11,7 +14,7 @@ function SellerProducts() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/products/");
+        const res = await fetch(`${BASE_URL}/products/`);
         const data = await res.json();
         // Filter only products of this seller
         const myProducts = data.filter(p => p.seller_uid === seller_uid);
@@ -65,11 +68,11 @@ function SellerProducts() {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://127.0.0.1:8000/products/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newProduct, seller_uid, seller_name }),
-      });
+  const res = await fetch(`${BASE_URL}/products/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...newProduct, seller_uid, seller_name }),
+  });
       if (res.ok) {
         const product = await res.json();
         setProducts([...products, product]);

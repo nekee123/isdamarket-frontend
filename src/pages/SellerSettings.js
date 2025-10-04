@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 function SellerSettings() {
   const [seller, setSeller] = useState({ name: "", email: "", contact_number: "", profile_picture: "" });
   const [imagePreview, setImagePreview] = useState(null);
@@ -8,15 +10,16 @@ function SellerSettings() {
 
   useEffect(() => {
     const fetchSeller = async () => {
-      try {
-        const res = await fetch(`http://127.0.0.1:8000/sellers/${seller_uid}`);
-        const data = await res.json();
-        setSeller({ 
-          name: data.name, 
-          email: data.email, 
-          contact_number: data.contact_number,
-          profile_picture: data.profile_picture || ""
-        });
+     try {
+  const res = await fetch(`${BASE_URL}/sellers/${seller_uid}`);
+  if (!res.ok) throw new Error("Failed to fetch seller");
+  const data = await res.json();
+  setSeller({ 
+    name: data.name, 
+    email: data.email, 
+    contact_number: data.contact_number,
+    profile_picture: data.profile_picture || ""
+  });
         if (data.profile_picture) {
           setImagePreview(data.profile_picture);
         }
@@ -67,7 +70,7 @@ function SellerSettings() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/sellers/${seller_uid}`, {
+      const res = await fetch(`${BASE_URL}/sellers/${seller_uid}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(seller),

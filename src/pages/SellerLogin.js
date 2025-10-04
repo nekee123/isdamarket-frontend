@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 function SellerLogin() {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ function SellerLogin() {
     const password = form.password.value;
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/sellers/login", {
+      const res = await fetch(`${BASE_URL}/sellers/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -45,11 +47,11 @@ function SellerLogin() {
     const password = form.password.value;
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/sellers/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, contact_number, password }),
-      });
+    const res = await fetch(`${BASE_URL}/sellers/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, contact_number, password }),
+     });
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Sign up failed" }));

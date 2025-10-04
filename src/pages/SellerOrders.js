@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
+
 function SellerOrders() {
   const [orders, setOrders] = useState([]);
   const seller_uid = localStorage.getItem("seller_uid");
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/orders/seller/${seller_uid}`);
+     const res = await fetch(`${BASE_URL}/orders/seller/${seller_uid}`);
       const data = await res.json();
       setOrders(data);
     } catch (err) {
@@ -21,7 +24,7 @@ function SellerOrders() {
 
   const handleAcceptOrder = async (orderUid) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/orders/${orderUid}`, {
+      const res = await fetch(`${BASE_URL}/orders/${orderUid}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "confirmed" }),
@@ -48,7 +51,7 @@ function SellerOrders() {
     }
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/orders/${orderUid}`, {
+      const res = await fetch(`${BASE_URL}/orders/${orderUid}`, {
         method: "DELETE",
       });
 

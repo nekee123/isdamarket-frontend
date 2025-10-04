@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 function BuyerSettings() {
   const [buyer, setBuyer] = useState({ name: "", email: "", contact_number: "", profile_picture: "" });
   const [imagePreview, setImagePreview] = useState(null);
@@ -9,7 +11,7 @@ function BuyerSettings() {
   useEffect(() => {
     const fetchBuyer = async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/buyers/${buyer_uid}`);
+        const res = await fetch(`${BASE_URL}/buyers/${buyer_uid}`);
         const data = await res.json();
         setBuyer({ 
           name: data.name, 

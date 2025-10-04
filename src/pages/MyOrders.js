@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 function MyOrders() {
   const [orders, setOrders] = useState([]);
 
@@ -22,9 +24,10 @@ function MyOrders() {
     }
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/orders/${orderUid}`, {
-        method: "DELETE",
+       const res = await fetch(`${BASE_URL}/orders/${orderUid}`, {
+       method: "DELETE",
       });
+
 
       if (res.ok) {
         alert("Order cancelled successfully!");
