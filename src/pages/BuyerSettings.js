@@ -71,7 +71,7 @@ function BuyerSettings() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/buyers/${buyer_uid}`, {
+      const res = await fetch(`${BASE_URL}/buyers/${buyer_uid}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(buyer),

@@ -8,7 +8,7 @@ function MyOrders() {
 
   const fetchOrders = async () => {
     const buyer_uid = localStorage.getItem("buyer_uid");
-    const res = await fetch(`http://127.0.0.1:8000/orders/buyer/${buyer_uid}`);
+    const res = await fetch(`${BASE_URL}/orders/buyer/${buyer_uid}`);
     const data = await res.json();
     // Ensure it's always an array
     setOrders(Array.isArray(data) ? data : [data]);
