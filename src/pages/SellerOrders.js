@@ -3,18 +3,17 @@ import "../App.css";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
-
 function SellerOrders() {
   const [orders, setOrders] = useState([]);
   const seller_uid = localStorage.getItem("seller_uid");
 
   const fetchOrders = async () => {
     try {
-     const res = await fetch(`${BASE_URL}/orders/seller/${seller_uid}`);
+      const res = await fetch(`${BASE_URL}/orders/seller/${seller_uid}`);
       const data = await res.json();
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : [data]);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching seller orders:", err);
     }
   };
 
@@ -32,11 +31,11 @@ function SellerOrders() {
 
       if (res.ok) {
         alert("Order confirmed successfully!");
-        fetchOrders(); // Refresh orders
+        fetchOrders();
       } else {
         const errorData = await res.json().catch(() => ({ detail: "Unknown error" }));
-        console.error("Accept order error:", errorData);
         const errorMessage = typeof errorData.detail === 'string' ? errorData.detail : JSON.stringify(errorData.detail || errorData);
+        console.error("Accept order error:", errorData);
         alert(`Failed to confirm order: ${errorMessage}`);
       }
     } catch (err) {
@@ -46,9 +45,7 @@ function SellerOrders() {
   };
 
   const handleCancelOrder = async (orderUid) => {
-    if (!window.confirm("Are you sure you want to cancel/delete this order?")) {
-      return;
-    }
+    if (!window.confirm("Are you sure you want to cancel/delete this order?")) return;
 
     try {
       const res = await fetch(`${BASE_URL}/orders/${orderUid}`, {
@@ -57,7 +54,7 @@ function SellerOrders() {
 
       if (res.ok) {
         alert("Order cancelled successfully!");
-        fetchOrders(); // Refresh orders
+        fetchOrders();
       } else {
         const errorData = await res.json().catch(() => ({ detail: "Unknown error" }));
         console.error("Cancel order error:", errorData);
@@ -67,20 +64,6 @@ function SellerOrders() {
       console.error("Cancel order exception:", err);
       alert(`Error cancelling order: ${err.message}`);
     }
-  };
-
-  const getStatusBadge = (status) => {
-    const statusColors = {
-      pending: "bg-yellow-100 text-yellow-800",
-      confirmed: "bg-green-100 text-green-800",
-      processing: "bg-blue-100 text-blue-800",
-      shipped: "bg-purple-100 text-purple-800",
-      delivered: "bg-teal-100 text-teal-800",
-      cancelled: "bg-red-100 text-red-800",
-      cancelled_by_buyer: "bg-red-100 text-red-800",
-      cancelled_by_seller: "bg-orange-100 text-orange-800",
-    };
-    return statusColors[status] || "bg-gray-100 text-gray-800";
   };
 
   const getStatusText = (status) => {
@@ -101,40 +84,54 @@ function SellerOrders() {
     <div className="dashboard-container">
       <h1 className="dashboard-title">🛒 Customer Orders</h1>
       <p className="dashboard-subtitle">Manage orders from your customers</p>
-      
+
       {orders.length === 0 ? (
-        <p style={{color: '#999', fontSize: '1.1rem'}}>No orders yet 🐠</p>
+        <p style={{ color: '#999', fontSize: '1.1rem' }}>No orders yet 🐠</p>
       ) : (
         <div className="dashboard-cards">
           {orders.map(order => (
             <div key={order.uid} className="card">
               <h3>{order.fish_product_name}</h3>
-              <p style={{fontSize: '0.8rem', color: '#aaa', marginBottom: '1rem'}}>Order ID: {order.uid.substring(0, 8)}...</p>
-              
-              <div style={{textAlign: 'left', marginBottom: '1rem'}}>
-                <p style={{fontSize: '0.9rem', color: '#666', marginBottom: '0.3rem'}}>
+              <p style={{ fontSize: '0.8rem', color: '#aaa', marginBottom: '1rem' }}>
+                Order ID: {order.uid.substring(0, 8)}...
+              </p>
+
+              <div style={{ textAlign: 'left', marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.3rem' }}>
                   <strong>👤 Buyer:</strong> {order.buyer_name}
                 </p>
-                <p style={{fontSize: '0.9rem', color: '#666', marginBottom: '0.3rem'}}>
+
+                {/* Buyer contact number */}
+                <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.3rem' }}>
+                  <strong>📱 Contact:</strong>{" "}
+                  <a href={`https://wa.me/${order.buyer_contact}`} target="_blank" rel="noreferrer">
+                    {order.buyer_contact}
+                  </a>
+                </p>
+
+                <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.3rem' }}>
                   <strong>📦 Quantity:</strong> {order.quantity} pcs
                 </p>
-                <p style={{fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem'}}>
-                  <strong>💰 Total:</strong> <span style={{fontSize: '1.3rem', fontWeight: 'bold', color: '#4caf50'}}>₱{order.total_price}</span>
+                <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
+                  <strong>💰 Total:</strong>{" "}
+                  <span style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#4caf50' }}>
+                    ₱{order.total_price}
+                  </span>
                 </p>
               </div>
 
-              <div style={{marginBottom: '1rem'}}>
+              <div style={{ marginBottom: '1rem' }}>
                 <span style={{
                   display: 'inline-block',
                   padding: '0.4rem 0.8rem',
                   borderRadius: '20px',
                   fontSize: '0.85rem',
                   fontWeight: 'bold',
-                  background: order.status === 'pending' ? '#fff3cd' : 
-                             order.status === 'confirmed' ? '#d4edda' : 
-                             order.status === 'cancelled' ? '#f8d7da' : '#e2e3e5',
-                  color: order.status === 'pending' ? '#856404' : 
-                         order.status === 'confirmed' ? '#155724' : 
+                  background: order.status === 'pending' ? '#fff3cd' :
+                              order.status === 'confirmed' ? '#d4edda' :
+                              order.status === 'cancelled' ? '#f8d7da' : '#e2e3e5',
+                  color: order.status === 'pending' ? '#856404' :
+                         order.status === 'confirmed' ? '#155724' :
                          order.status === 'cancelled' ? '#721c24' : '#383d41'
                 }}>
                   {getStatusText(order.status)}
@@ -142,7 +139,7 @@ function SellerOrders() {
               </div>
 
               {order.status === "pending" && (
-                <div style={{display: 'flex', gap: '0.5rem'}}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button
                     onClick={() => handleAcceptOrder(order.uid)}
                     style={{
