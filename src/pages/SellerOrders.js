@@ -11,9 +11,10 @@ function SellerOrders() {
     try {
       const res = await fetch(`${BASE_URL}/orders/seller/${seller_uid}`);
       const data = await res.json();
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : [data]);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch seller orders:", err);
+      setOrders([]);
     }
   };
 
@@ -29,7 +30,6 @@ function SellerOrders() {
         body: JSON.stringify({ status: "confirmed" }),
       });
       if (res.ok) {
-        alert("Order confirmed successfully!");
         fetchOrders();
       } else {
         const errorData = await res.json().catch(() => ({ detail: "Unknown error" }));
@@ -45,13 +45,7 @@ function SellerOrders() {
 
     try {
       const res = await fetch(`${BASE_URL}/orders/${orderUid}`, { method: "DELETE" });
-      if (res.ok) {
-        alert("Order cancelled successfully!");
-        fetchOrders();
-      } else {
-        const errorData = await res.json().catch(() => ({ detail: "Unknown error" }));
-        alert(`Failed to cancel order: ${errorData.detail || "Unknown error"}`);
-      }
+      if (res.ok) fetchOrders();
     } catch (err) {
       alert(`Error cancelling order: ${err.message}`);
     }
@@ -92,13 +86,13 @@ function SellerOrders() {
                   <strong>👤 Buyer:</strong> {order.buyer_name}
                 </p>
                 <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.3rem" }}>
-                  <strong>📱 Contact:</strong> {order.buyer_contact || "N/A"}
+                  <strong>📱 Contact:</strong> {order.buyer_contact}
                 </p>
                 <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.3rem" }}>
                   <strong>📦 Quantity:</strong> {order.quantity} pcs
                 </p>
                 <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.5rem" }}>
-                  <strong>💰 Total:</strong>{" "}
+                  <strong>💰 Total:</strong> 
                   <span style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#4caf50" }}>
                     ₱{order.total_price}
                   </span>
@@ -137,34 +131,10 @@ function SellerOrders() {
 
               {order.status === "pending" && (
                 <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button
-                    onClick={() => handleAcceptOrder(order.uid)}
-                    style={{
-                      flex: 1,
-                      padding: "0.6rem",
-                      background: "#4caf50",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "25px",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                    }}
-                  >
+                  <button onClick={() => handleAcceptOrder(order.uid)} style={{ flex: 1, padding: "0.6rem", background: "#4caf50", color: "white", border: "none", borderRadius: "25px", fontWeight: "bold", cursor: "pointer" }}>
                     ✓ Confirm
                   </button>
-                  <button
-                    onClick={() => handleCancelOrder(order.uid)}
-                    style={{
-                      flex: 1,
-                      padding: "0.6rem",
-                      background: "#f44336",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "25px",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                    }}
-                  >
+                  <button onClick={() => handleCancelOrder(order.uid)} style={{ flex: 1, padding: "0.6rem", background: "#f44336", color: "white", border: "none", borderRadius: "25px", fontWeight: "bold", cursor: "pointer" }}>
                     ✗ Cancel
                   </button>
                 </div>

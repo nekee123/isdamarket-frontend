@@ -8,9 +8,14 @@ function MyOrders() {
 
   const fetchOrders = async () => {
     const buyer_uid = localStorage.getItem("buyer_uid");
-    const res = await fetch(`${BASE_URL}/orders/buyer/${buyer_uid}`);
-    const data = await res.json();
-    setOrders(Array.isArray(data) ? data : [data]);
+    try {
+      const res = await fetch(`${BASE_URL}/orders/buyer/${buyer_uid}`);
+      const data = await res.json();
+      setOrders(Array.isArray(data) ? data : [data]);
+    } catch (err) {
+      console.error("Failed to fetch orders:", err);
+      setOrders([]);
+    }
   };
 
   useEffect(() => {
@@ -22,14 +27,7 @@ function MyOrders() {
 
     try {
       const res = await fetch(`${BASE_URL}/orders/${orderUid}`, { method: "DELETE" });
-
-      if (res.ok) {
-        alert("Order cancelled successfully!");
-        fetchOrders();
-      } else {
-        const errorData = await res.json().catch(() => ({ detail: "Unknown error" }));
-        alert(`Failed to cancel order: ${errorData.detail || "Unknown error"}`);
-      }
+      if (res.ok) fetchOrders();
     } catch (err) {
       alert(`Error cancelling order: ${err.message}`);
     }
@@ -70,7 +68,7 @@ function MyOrders() {
                   <strong>🏪 Seller:</strong> {order.seller_name}
                 </p>
                 <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.3rem" }}>
-                  <strong>📱 Contact:</strong> {order.seller_contact || "N/A"}
+                  <strong>📱 Contact:</strong> {order.seller_contact}
                 </p>
                 <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.3rem" }}>
                   <strong>📦 Quantity:</strong> {order.quantity} pcs
