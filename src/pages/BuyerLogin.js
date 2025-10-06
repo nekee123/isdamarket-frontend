@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
+import BackButton from "../components/BackButton";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -82,6 +83,7 @@ function BuyerLogin() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #fddde6, #d4f1f9)", padding: "2rem" }}>
+      <BackButton to="/" />
       <div style={{ background: "#e0cdcdff", borderRadius: "20px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", padding: "3rem", width: "100%", maxWidth: "450px" }}>
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🛒</div>

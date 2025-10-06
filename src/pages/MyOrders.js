@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
+import BackButton from "../components/BackButton";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -49,7 +50,8 @@ function MyOrders() {
 
   return (
     <div className="dashboard-container">
-      <h1 className="dashboard-title">🛒 My Orders</h1>
+      <BackButton to="/buyer-dashboard" />
+      <h1 className="dashboard-title">📦 My Orders</h1>
       <p className="dashboard-subtitle">View and manage your orders</p>
 
       {orders.length === 0 ? (

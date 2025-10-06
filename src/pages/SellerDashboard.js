@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
+import BackButton from "../components/BackButton";
 
 function SellerDashboard() {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ function SellerDashboard() {
         padding: "20px",
       }}
     >
+      <BackButton to="/" />
       {/* 🟦 Header */}
       <header style={styles.header}>
         <div style={styles.headerContainer}>
@@ -86,11 +88,14 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    maxWidth: "800px", // same width as cards
-    margin: "0 auto",   // center horizontally
+    maxWidth: "800px",
+    margin: "0 auto",
+    padding: "0 10px",
+    flexWrap: "wrap",
+    gap: "10px",
   },
   logo: {
-    fontSize: "48px", // big IsdaMarket
+    fontSize: "clamp(24px, 5vw, 48px)",
     fontWeight: "bold",
     color: "#fcfcfcff",
     letterSpacing: "2px",
@@ -98,7 +103,8 @@ const styles = {
   searchLogoutWrapper: {
     display: "flex",
     alignItems: "center",
-    gap: "15px",
+    gap: "10px",
+    flexWrap: "nowrap",
   },
   logoutButton: {
     backgroundColor: "#bd8ab1ff",
@@ -108,23 +114,28 @@ const styles = {
     borderRadius: "6px",
     cursor: "pointer",
     fontWeight: "bold",
+    whiteSpace: "nowrap",
   },
   main: {
     textAlign: "center",
+    padding: "0 10px",
   },
   cards: {
     display: "flex",
     justifyContent: "center",
-    gap: "30px",
+    gap: "20px",
     marginTop: "30px",
     flexWrap: "wrap",
+    padding: "0 10px",
   },
   card: {
     backgroundColor: "#fff",
     borderRadius: "12px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    padding: "50px",
-    width: "220px",
+    padding: "40px 20px",
+    width: "100%",
+    maxWidth: "220px",
+    minWidth: "150px",
   },
 };
 

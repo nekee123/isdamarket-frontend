@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
+import BackButton from "../components/BackButton";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -23,6 +24,7 @@ function BrowseFish() {
             acc[sellerKey] = {
               seller_name: product.seller_name,
               seller_uid: product.seller_uid,
+              seller_location: product.seller_location,
               products: []
             };
           }
@@ -75,6 +77,7 @@ function BrowseFish() {
 
   return (
     <div className="dashboard-container">
+      <BackButton to="/buyer-dashboard" />
       <h1 className="dashboard-title">🐟 Browse Fresh Fish</h1>
       <p className="dashboard-subtitle">Browse available fish products from our sellers</p>
       
@@ -88,7 +91,7 @@ function BrowseFish() {
                 🏪 {seller.seller_name}'s Shop
               </h2>
               <p className="dashboard-subtitle">
-                {seller.products.length} product(s) available
+                📍 {seller.seller_location || 'Location not specified'} • {seller.products.length} product(s) available
               </p>
               
               <div className="dashboard-cards">

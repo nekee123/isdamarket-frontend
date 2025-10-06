@@ -6,19 +6,30 @@ const SearchBar = ({ defaultType, userType }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState(defaultType); // "products" or "sellers"/"buyers"
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const fetchData = async (query) => {
     if (!query.trim()) return;
 
+    setLoading(true);
+    setError(null);
     try {
       const response = await fetch(
         `http://127.0.0.1:8000/search?query=${query}&search_type=${searchType}`
       );
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
       const data = await response.json();
-      setResults(data);
+      setResults(data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setError("Could not connect to server. Make sure backend is running.");
+      setResults([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,7 +88,19 @@ const SearchBar = ({ defaultType, userType }) => {
         />
       </div>
 
-      {results.length > 0 && (
+      {loading && (
+        <div style={styles.dropdown}>
+          <div style={styles.loadingText}>Searching...</div>
+        </div>
+      )}
+
+      {error && (
+        <div style={styles.dropdown}>
+          <div style={styles.errorText}>{error}</div>
+        </div>
+      )}
+
+      {!loading && !error && results.length > 0 && (
         <div style={styles.dropdown}>
           {results.map((item, index) => (
             <div
@@ -108,8 +131,10 @@ const SearchBar = ({ defaultType, userType }) => {
 const styles = {
   container: {
     position: "relative",
-    width: "320px",
-    marginLeft: "20px",
+    width: "100%",
+    maxWidth: "320px",
+    minWidth: "200px",
+    marginLeft: "0",
   },
   searchBox: {
     display: "flex",
@@ -166,6 +191,18 @@ const styles = {
     fontSize: "12px",
     marginTop: "5px",
     cursor: "pointer",
+  },
+  loadingText: {
+    padding: "12px",
+    textAlign: "center",
+    color: "#091217ff",
+    fontStyle: "italic",
+  },
+  errorText: {
+    padding: "12px",
+    textAlign: "center",
+    color: "#c44f4fff",
+    fontSize: "12px",
   },
 };
 

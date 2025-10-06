@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
+import BackButton from "../components/BackButton";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -50,13 +51,14 @@ function SellerLogin() {
     const name = form.name.value;
     const email = form.email.value;
     const contact_number = form.contact.value;
+    const location = form.location.value;
     const password = form.password.value;
 
     try {
       const res = await fetch(`${BASE_URL}/sellers/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, contact_number, password }),
+        body: JSON.stringify({ name, email, contact_number, location, password }),
       });
 
       if (!res.ok) {
@@ -92,6 +94,7 @@ function SellerLogin() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #fddde6, #d4f1f9)", padding: "2rem" }}>
+      <BackButton to="/" />
       <div style={{ background: "#e0cdcdff", borderRadius: "20px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", padding: "3rem", width: "100%", maxWidth: "450px" }}>
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🐟</div>
@@ -127,6 +130,7 @@ function SellerLogin() {
             <input type="text" name="name" placeholder="Name" required style={inputStyle} />
             <input type="email" name="email" placeholder="Email" required style={inputStyle} />
             <input type="text" name="contact" placeholder="Contact Number" required style={inputStyle} />
+            <input type="text" name="location" placeholder="Location (e.g., Manila, Cebu)" required style={inputStyle} />
             <input type="password" name="password" placeholder="Password" required style={inputStyle} />
             <button type="submit" style={submitStyle}>Sign Up</button>
           </form>

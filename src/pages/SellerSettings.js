@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
+import BackButton from "../components/BackButton";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -76,31 +77,32 @@ function SellerSettings() {
         body: JSON.stringify(seller),
       });
       if (res.ok) alert("Profile updated successfully!");
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error(err); 
+    }
   };
 
   return (
     <div className="dashboard-container">
-      <h1 className="dashboard-title">⚙️ Profile Settings</h1>
+      <BackButton to="/seller-dashboard" />
+      <h1 className="dashboard-title">⚙️ Seller Settings</h1>
       <p className="dashboard-subtitle">Manage your seller account information</p>
       
       <form onSubmit={handleUpdate} style={{maxWidth: '600px', margin: '0 auto', background: '#fff', padding: '3rem', borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.1)'}}>
         {/* Profile Picture Section */}
         <div style={{marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-          <div style={{marginBottom: '1.5rem'}}>
-            {imagePreview ? (
-              <img 
-                src={imagePreview} 
-                alt="Profile" 
-                style={{width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover', border: '5px solid #11998e', boxShadow: '0 10px 30px rgba(17, 153, 142, 0.3)'}}
-              />
-            ) : (
-              <div style={{width: '150px', height: '150px', borderRadius: '50%', background: 'linear-gradient(135deg, #11998e 0%, #a36dabff 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '4rem', fontWeight: 'bold', boxShadow: '0 10px 30px rgba(17, 153, 142, 0.3)'}}>
-                {seller.name ? seller.name.charAt(0).toUpperCase() : "?"}
-              </div>
-            )}
-          </div>
-          <label style={{cursor: 'pointer', padding: '0.8rem 1.5rem', background: 'linear-gradient(135deg, #b5a5d2ff 0%, #7e9ae1ff 100%)', color: '#fff', borderRadius: '25px', fontWeight: 'bold', transition: 'transform 0.2s', border: 'none'}}>
+          {imagePreview ? (
+            <img 
+              src={imagePreview} 
+              alt="Profile" 
+              style={{width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover', border: '5px solid #667eea', boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'}}
+            />
+          ) : (
+            <div style={{width: '150px', height: '150px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '4rem', fontWeight: 'bold', boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'}}>
+              {seller.name ? seller.name.charAt(0).toUpperCase() : "?"}
+            </div>
+          )}
+          <label style={{cursor: 'pointer', padding: '0.8rem 1.5rem', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', borderRadius: '25px', fontWeight: 'bold', transition: 'transform 0.2s', border: 'none', marginTop: '1rem'}}>
             <span>📷 Change Profile Picture</span>
             <input 
               type="file" 
@@ -121,8 +123,8 @@ function SellerSettings() {
               onChange={e => setSeller({...seller, name:e.target.value})} 
               placeholder="Your Name" 
               required 
-              onFocus={(e) => e.target.style.borderColor = '#c89edbff'}
-              onBlur={(e) => e.target.style.borderColor = '#8937b1ff'}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
           <div>
@@ -134,7 +136,7 @@ function SellerSettings() {
               placeholder="your.email@example.com" 
               type="email"
               required 
-              onFocus={(e) => e.target.style.borderColor = '#100920ff'}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
               onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
@@ -146,7 +148,7 @@ function SellerSettings() {
               onChange={e => setSeller({...seller, contact_number:e.target.value})} 
               placeholder="+63 912 345 6789" 
               required 
-              onFocus={(e) => e.target.style.borderColor = '#11998e'}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
               onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
@@ -154,7 +156,7 @@ function SellerSettings() {
 
         <button 
           type="submit" 
-          style={{marginTop: '2rem', width: '100%', padding: '1rem', border: 'none', borderRadius: '10px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', background: 'linear-gradient(135deg, #96b3b0ff 0%, #7e569eff 100%)', color: '#fff', transition: 'transform 0.2s'}}
+          style={{marginTop: '2rem', width: '100%', padding: '1rem', border: 'none', borderRadius: '10px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', transition: 'transform 0.2s'}}
         >
           ✔ Update Profile
         </button>

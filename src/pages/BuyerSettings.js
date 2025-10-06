@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
+import BackButton from "../components/BackButton";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -84,26 +85,25 @@ function BuyerSettings() {
 
   return (
     <div className="dashboard-container">
-      <h1 className="dashboard-title">⚙️ Profile Settings</h1>
+      <BackButton to="/buyer-dashboard" />
+      <h1 className="dashboard-title">⚙️ Buyer Settings</h1>
       <p className="dashboard-subtitle">Manage your buyer account information</p>
       
       <form onSubmit={handleUpdate} style={{maxWidth: '600px', margin: '0 auto', background: '#fff', padding: '3rem', borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.1)'}}>
         {/* Profile Picture Section */}
         <div style={{marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-          <div style={{marginBottom: '1.5rem'}}>
-            {imagePreview ? (
-              <img 
-                src={imagePreview} 
-                alt="Profile" 
-                style={{width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover', border: '5px solid #667eea', boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'}}
-              />
-            ) : (
-              <div style={{width: '150px', height: '150px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '4rem', fontWeight: 'bold', boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'}}>
-                {buyer.name ? buyer.name.charAt(0).toUpperCase() : "?"}
-              </div>
-            )}
-          </div>
-          <label style={{cursor: 'pointer', padding: '0.8rem 1.5rem', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', borderRadius: '25px', fontWeight: 'bold', transition: 'transform 0.2s', border: 'none'}}>
+          {imagePreview ? (
+            <img 
+              src={imagePreview} 
+              alt="Profile" 
+              style={{width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover', border: '5px solid #667eea', boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'}}
+            />
+          ) : (
+            <div style={{width: '150px', height: '150px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '4rem', fontWeight: 'bold', boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'}}>
+              {buyer.name ? buyer.name.charAt(0).toUpperCase() : "?"}
+            </div>
+          )}
+          <label style={{cursor: 'pointer', padding: '0.8rem 1.5rem', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', borderRadius: '25px', fontWeight: 'bold', transition: 'transform 0.2s', border: 'none', marginTop: '1rem'}}>
             <span>📷 Change Profile Picture</span>
             <input 
               type="file" 
