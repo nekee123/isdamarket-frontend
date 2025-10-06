@@ -5,7 +5,7 @@ import SearchBar from "../components/SearchBar";
 function SellerDashboard() {
   const navigate = useNavigate();
 
-  // ✅ Redirect if no token (prevents going back after logout)
+  // ✅ Redirect if no token
   useEffect(() => {
     const token = localStorage.getItem("seller_token");
     if (!token) {
@@ -26,23 +26,26 @@ function SellerDashboard() {
         background:
           "linear-gradient(135deg, #debbcbff 0%, #a7d6e1ff 50%, #f190c5ff 100%)",
         minHeight: "100vh",
+        padding: "20px",
       }}
     >
       {/* 🟦 Header */}
       <header style={styles.header}>
-        <h1 style={styles.logo}>IsdaMarket</h1>
+        <div style={styles.headerContainer}>
+          <h1 style={styles.logo}>IsdaMarket</h1>
 
-        <div style={styles.rightHeader}>
-          <SearchBar defaultType="products" userType="seller" />
-          <button onClick={handleLogout} style={styles.logoutButton}>
-            Logout
-          </button>
+          <div style={styles.searchLogoutWrapper}>
+            <SearchBar defaultType="products" userType="seller" />
+            <button onClick={handleLogout} style={styles.logoutButton}>
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
       {/* 🟩 Main content */}
       <div style={styles.main}>
-        <h1>🐠 Seller Dashboard</h1>
+        <h1>🐠Grow Your Sales Today!</h1>
         <p>
           Welcome {localStorage.getItem("seller_name")}! Manage your products
           and check your orders.
@@ -50,21 +53,21 @@ function SellerDashboard() {
 
         <div style={styles.cards}>
           <div style={styles.card}>
-            <h3>📦 My Products</h3>
+            <h2>📦 My Products</h2>
             <button onClick={() => navigate("/seller-dashboard/products")}>
               View Products
             </button>
           </div>
 
           <div style={styles.card}>
-            <h3>🧾 My Orders</h3>
+            <h2>🧾 My Orders</h2>
             <button onClick={() => navigate("/seller-dashboard/orders")}>
               View Orders
             </button>
           </div>
 
           <div style={styles.card}>
-            <h3>⚙️ Settings</h3>
+            <h2>⚙️ Settings</h2>
             <button onClick={() => navigate("/seller-dashboard/settings")}>
               Settings
             </button>
@@ -77,42 +80,42 @@ function SellerDashboard() {
 
 const styles = {
   header: {
+    marginBottom: "30px",
+  },
+  headerContainer: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "15px 30px",
-    backgroundColor: "#c07b94ff", // 🌸 darkish pink header only
-    color: "#fff",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    maxWidth: "800px", // same width as cards
+    margin: "0 auto",   // center horizontally
   },
   logo: {
-    fontSize: "22px",
+    fontSize: "48px", // big IsdaMarket
     fontWeight: "bold",
-    letterSpacing: "1px",
-    color: "#fcfcfcff", // 🌸 pinkish accent
+    color: "#fcfcfcff",
+    letterSpacing: "2px",
   },
-  rightHeader: {
+  searchLogoutWrapper: {
     display: "flex",
     alignItems: "center",
-    gap: "18px",
+    gap: "15px",
   },
   logoutButton: {
-    backgroundColor: "#d18492ff",
+    backgroundColor: "#bd8ab1ff",
     color: "#fff",
     border: "none",
-    padding: "8px 14px",
+    padding: "10px 16px",
     borderRadius: "6px",
     cursor: "pointer",
     fontWeight: "bold",
   },
   main: {
     textAlign: "center",
-    padding: "40px",
   },
   cards: {
     display: "flex",
     justifyContent: "center",
-    gap: "20px",
+    gap: "30px",
     marginTop: "30px",
     flexWrap: "wrap",
   },
@@ -120,7 +123,7 @@ const styles = {
     backgroundColor: "#fff",
     borderRadius: "12px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    padding: "70px",
+    padding: "50px",
     width: "220px",
   },
 };

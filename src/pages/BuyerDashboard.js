@@ -26,18 +26,24 @@ function BuyerDashboard() {
         background:
           "linear-gradient(135deg, #debbcbff 0%, #a7d6e1ff 50%, #f190c5ff 100%)",
         minHeight: "100vh",
+        padding: "20px",
       }}
     >
+      {/* 🟦 Header */}
       <header style={styles.header}>
-        <h1 style={styles.logo}>IsdaMarket</h1>
-        <div style={styles.rightHeader}>
-          <SearchBar defaultType="products" userType="buyer" />
-          <button onClick={handleLogout} style={styles.logoutButton}>
-            Logout
-          </button>
+        <div style={styles.headerContainer}>
+          <h1 style={styles.logo}>IsdaMarket</h1>
+
+          <div style={styles.searchLogoutWrapper}>
+            <SearchBar defaultType="products" userType="buyer" />
+            <button onClick={handleLogout} style={styles.logoutButton}>
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
+      {/* 🟩 Main content */}
       <div style={styles.main}>
         <h1>🛒 Fresh Catches Await!</h1>
         <p>
@@ -74,42 +80,42 @@ function BuyerDashboard() {
 
 const styles = {
   header: {
+    marginBottom: "30px",
+  },
+  headerContainer: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "15px 30px",
-    backgroundColor: "#c07b94ff", // 🌸 darkish pink header only
-    color: "#fff",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    maxWidth: "800px", // same width as cards
+    margin: "0 auto",   // center horizontally
   },
   logo: {
-    fontSize: "22px",
+    fontSize: "48px", // big IsdaMarket
     fontWeight: "bold",
-    letterSpacing: "1px",
-    color: "#fcfcfcff", // 🌸 pinkish accent
+    color: "#fcfcfcff",
+    letterSpacing: "2px",
   },
-  rightHeader: {
+  searchLogoutWrapper: {
     display: "flex",
     alignItems: "center",
-    gap: "18px",
+    gap: "15px",
   },
   logoutButton: {
-    backgroundColor: "#d18492ff",
+    backgroundColor: "#bd8ab1ff",
     color: "#fff",
     border: "none",
-    padding: "8px 14px",
+    padding: "10px 16px",
     borderRadius: "6px",
     cursor: "pointer",
     fontWeight: "bold",
   },
   main: {
     textAlign: "center",
-    padding: "40px",
   },
   cards: {
     display: "flex",
     justifyContent: "center",
-    gap: "20px",
+    gap: "30px",
     marginTop: "30px",
     flexWrap: "wrap",
   },
@@ -117,7 +123,7 @@ const styles = {
     backgroundColor: "#fff",
     borderRadius: "12px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    padding: "70px",
+    padding: "50px",
     width: "220px",
   },
 };
