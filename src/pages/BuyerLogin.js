@@ -17,10 +17,10 @@ function BuyerLogin() {
 
     try {
       const res = await fetch(`${BASE_URL}/buyers/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-    });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Login failed" }));
@@ -30,8 +30,12 @@ function BuyerLogin() {
       }
 
       const data = await res.json();
+
+      // Save user data and token to localStorage
+      localStorage.setItem("buyer_token", data.token); // <--- token
       localStorage.setItem("buyer_uid", data.uid);
       localStorage.setItem("buyer_name", data.name);
+
       navigate("/buyer-dashboard");
     } catch (err) {
       console.error("Login error:", err);
@@ -50,9 +54,9 @@ function BuyerLogin() {
 
     try {
       const res = await fetch(`${BASE_URL}/buyers/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, contact_number, password }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, contact_number, password }),
       });
 
       if (!res.ok) {
@@ -63,8 +67,12 @@ function BuyerLogin() {
       }
 
       const data = await res.json();
+
+      // Save user data and token
+      localStorage.setItem("buyer_token", data.token); // <--- token
       localStorage.setItem("buyer_uid", data.uid);
       localStorage.setItem("buyer_name", data.name);
+
       navigate("/buyer-dashboard");
     } catch (err) {
       console.error("Sign up error:", err);
@@ -73,127 +81,60 @@ function BuyerLogin() {
   };
 
   return (
-    <div style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #fddde6, #d4f1f9)', padding: '2rem'}}>
-      <div style={{background: '#fff', borderRadius: '20px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', padding: '3rem', width: '100%', maxWidth: '450px'}}>
-        <div style={{textAlign: 'center', marginBottom: '2rem'}}>
-          <div style={{fontSize: '4rem', marginBottom: '1rem'}}>🛒</div>
-          <h2 style={{fontSize: '2rem', color: '#ff69b4', marginBottom: '0.5rem', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(255,255,255,0.8)'}}>Buyer {isLogin ? "Login" : "Sign Up"}</h2>
-          <p style={{color: '#888', fontSize: '0.95rem'}}>Welcome back! Please enter your details</p>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #fddde6, #d4f1f9)", padding: "2rem" }}>
+      <div style={{ background: "#e0cdcdff", borderRadius: "20px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", padding: "3rem", width: "100%", maxWidth: "450px" }}>
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🛒</div>
+          <h2 style={{ fontSize: "2rem", color: "#ff69b4", marginBottom: "0.5rem", fontWeight: "bold", textShadow: "1px 1px 2px rgba(255,255,255,0.8)" }}>
+            Buyer {isLogin ? "Login" : "Sign Up"}
+          </h2>
+          <p style={{ color: "#0e0d0dff", fontSize: "0.95rem" }}>Welcome back! Please enter your details</p>
         </div>
 
-        <div style={{display: 'flex', gap: '1rem', marginBottom: '2rem'}}>
-          <button
-            onClick={() => setIsLogin(true)}
-            style={{
-              flex: 1,
-              padding: '0.8rem',
-              border: 'none',
-              borderRadius: '25px',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              background: isLogin ? '#ffb6c1' : '#f0f0f0',
-              color: '#fff'
-            }}
-          >
+        <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem" }}>
+          <button onClick={() => setIsLogin(true)} style={{
+            flex: 1, padding: "0.8rem", border: "none", borderRadius: "25px", fontSize: "1rem", fontWeight: "bold",
+            cursor: "pointer", transition: "all 0.3s", background: isLogin ? "#c07b94ff" : "#f0f0f0", color: "#fff"
+          }}>
             Login
           </button>
-          <button
-            onClick={() => setIsLogin(false)}
-            style={{
-              flex: 1,
-              padding: '0.8rem',
-              border: 'none',
-              borderRadius: '25px',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              background: !isLogin ? '#ffb6c1' : '#f0f0f0',
-              color: '#fff'
-            }}
-          >
+          <button onClick={() => setIsLogin(false)} style={{
+            flex: 1, padding: "0.8rem", border: "none", borderRadius: "25px", fontSize: "1rem", fontWeight: "bold",
+            cursor: "pointer", transition: "all 0.3s", background: !isLogin ? "#c07b94ff" : "#f0f0f0", color: "#fff"
+          }}>
             Sign Up
           </button>
         </div>
 
         {isLogin ? (
-          <form onSubmit={handleLogin} style={{display: 'flex', flexDirection: 'column', gap: '1.2rem'}}>
-            <input 
-              type="email" 
-              name="email" 
-              placeholder="Email" 
-              required 
-              style={{padding: '1rem', border: '2px solid #e0e0e0', borderRadius: '10px', fontSize: '1rem', outline: 'none', transition: 'border 0.3s'}}
-              onFocus={(e) => e.target.style.borderColor = '#ffb6c1'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-            <input 
-              type="password" 
-              name="password" 
-              placeholder="Password" 
-              required 
-              style={{padding: '1rem', border: '2px solid #e0e0e0', borderRadius: '10px', fontSize: '1rem', outline: 'none', transition: 'border 0.3s'}}
-              onFocus={(e) => e.target.style.borderColor = '#ffb6c1'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-            <button 
-              type="submit" 
-              style={{padding: '1rem', border: 'none', borderRadius: '25px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', background: '#ffb6c1', color: '#fff', marginTop: '0.5rem'}}
-            >
-              Login
-            </button>
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+            <input type="email" name="email" placeholder="Email" required style={inputStyle} />
+            <input type="password" name="password" placeholder="Password" required style={inputStyle} />
+            <button type="submit" style={submitStyle}>Login</button>
           </form>
         ) : (
-          <form onSubmit={handleSignUp} style={{display: 'flex', flexDirection: 'column', gap: '1.2rem'}}>
-            <input 
-              type="text" 
-              name="name" 
-              placeholder="Name" 
-              required 
-              style={{padding: '1rem', border: '2px solid #e0e0e0', borderRadius: '10px', fontSize: '1rem', outline: 'none', transition: 'border 0.3s'}}
-              onFocus={(e) => e.target.style.borderColor = '#ffb6c1'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-            <input 
-              type="email" 
-              name="email" 
-              placeholder="Email" 
-              required 
-              style={{padding: '1rem', border: '2px solid #e0e0e0', borderRadius: '10px', fontSize: '1rem', outline: 'none', transition: 'border 0.3s'}}
-              onFocus={(e) => e.target.style.borderColor = '#ffb6c1'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-            <input 
-              type="text" 
-              name="contact" 
-              placeholder="Contact Number" 
-              required 
-              style={{padding: '1rem', border: '2px solid #e0e0e0', borderRadius: '10px', fontSize: '1rem', outline: 'none', transition: 'border 0.3s'}}
-              onFocus={(e) => e.target.style.borderColor = '#ffb6c1'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-            <input 
-              type="password" 
-              name="password" 
-              placeholder="Password" 
-              required 
-              style={{padding: '1rem', border: '2px solid #e0e0e0', borderRadius: '10px', fontSize: '1rem', outline: 'none', transition: 'border 0.3s'}}
-              onFocus={(e) => e.target.style.borderColor = '#ffb6c1'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-            <button 
-              type="submit" 
-              style={{padding: '1rem', border: 'none', borderRadius: '25px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', background: '#ffb6c1', color: '#fff', marginTop: '0.5rem'}}
-            >
-              Sign Up
-            </button>
+          <form onSubmit={handleSignUp} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+            <input type="text" name="name" placeholder="Name" required style={inputStyle} />
+            <input type="email" name="email" placeholder="Email" required style={inputStyle} />
+            <input type="text" name="contact" placeholder="Contact Number" required style={inputStyle} />
+            <input type="password" name="password" placeholder="Password" required style={inputStyle} />
+            <button type="submit" style={submitStyle}>Sign Up</button>
           </form>
         )}
       </div>
     </div>
   );
 }
+
+const inputStyle = {
+  padding: "1rem", border: "2px solid #050404ff", borderRadius: "10px",
+  fontSize: "1rem", outline: "none", transition: "border 0.3s",
+  marginBottom: "0.5rem"
+};
+
+const submitStyle = {
+  padding: "1rem", border: "none", borderRadius: "25px", fontSize: "1.1rem",
+  fontWeight: "bold", cursor: "pointer", background: "#c07b94ff", color: "#fff"
+};
 
 export default BuyerLogin;

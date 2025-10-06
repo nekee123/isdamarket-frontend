@@ -1,31 +1,125 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import SearchBar from "../components/SearchBar";
 
 function BuyerDashboard() {
   const navigate = useNavigate();
 
+  // ✅ Check token when page loads
+  useEffect(() => {
+    const token = localStorage.getItem("buyer_token");
+    if (!token) {
+      navigate("/"); // go back to homepage
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("buyer_token");
+    localStorage.removeItem("buyer_name");
+    navigate("/"); // back to homepage
+  };
+
   return (
-    <div className="dashboard-container">
-      <h1>🛒 Buyer Dashboard</h1>
-      <p>Welcome {localStorage.getItem("buyer_name")}! Browse fish or check your orders.</p>
-
-      <div className="dashboard-cards">
-        <div className="card">
-          <h3>🐟 Browse Fish</h3>
-          <button onClick={() => navigate("/buyer-dashboard/browse")}>Browse</button>
+    <div
+      className="dashboard-container"
+      style={{
+        background:
+          "linear-gradient(135deg, #debbcbff 0%, #a7d6e1ff 50%, #f190c5ff 100%)",
+        minHeight: "100vh",
+      }}
+    >
+      <header style={styles.header}>
+        <h1 style={styles.logo}>IsdaMarket</h1>
+        <div style={styles.rightHeader}>
+          <SearchBar defaultType="products" userType="buyer" />
+          <button onClick={handleLogout} style={styles.logoutButton}>
+            Logout
+          </button>
         </div>
+      </header>
 
-        <div className="card">
-          <h3>📦 My Orders</h3>
-          <button onClick={() => navigate("/buyer-dashboard/orders")}>View Orders</button>
-        </div>
+      <div style={styles.main}>
+        <h1>🛒 Fresh Catches Await!</h1>
+        <p>
+          Welcome {localStorage.getItem("buyer_name")}! Browse fish or check your
+          orders.
+        </p>
 
-        <div className="card">
-          <h3>⚙️ Settings</h3>
-          <button onClick={() => navigate("/buyer-dashboard/settings")}>Settings</button>
+        <div style={styles.cards}>
+          <div style={styles.card}>
+            <h2>🐟 Browse Fish</h2>
+            <button onClick={() => navigate("/buyer-dashboard/browse")}>
+              Browse
+            </button>
+          </div>
+
+          <div style={styles.card}>
+            <h2>📦 My Orders</h2>
+            <button onClick={() => navigate("/buyer-dashboard/orders")}>
+              View Orders
+            </button>
+          </div>
+
+          <div style={styles.card}>
+            <h2>⚙️ Settings</h2>
+            <button onClick={() => navigate("/buyer-dashboard/settings")}>
+              Settings
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
+const styles = {
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "15px 30px",
+    backgroundColor: "#c07b94ff", // 🌸 darkish pink header only
+    color: "#fff",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+  },
+  logo: {
+    fontSize: "22px",
+    fontWeight: "bold",
+    letterSpacing: "1px",
+    color: "#fcfcfcff", // 🌸 pinkish accent
+  },
+  rightHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "18px",
+  },
+  logoutButton: {
+    backgroundColor: "#d18492ff",
+    color: "#fff",
+    border: "none",
+    padding: "8px 14px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+  main: {
+    textAlign: "center",
+    padding: "40px",
+  },
+  cards: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "20px",
+    marginTop: "30px",
+    flexWrap: "wrap",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: "12px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+    padding: "70px",
+    width: "220px",
+  },
+};
 
 export default BuyerDashboard;
