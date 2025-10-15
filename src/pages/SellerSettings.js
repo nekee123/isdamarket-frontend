@@ -1,33 +1,53 @@
 import React, { useState, useEffect } from "react";
-import "../App.css";
-import BackButton from "../components/BackButton";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { useToast } from "../components/Toast";
+import { FiUser, FiMail, FiPhone, FiMapPin, FiCamera, FiSave } from "react-icons/fi";
+import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 function SellerSettings() {
-  const [seller, setSeller] = useState({ name: "", email: "", contact_number: "", profile_picture: "" });
+  const [seller, setSeller] = useState({ name: "", email: "", contact_number: "", location: "", profile_picture: "" });
   const [imagePreview, setImagePreview] = useState(null);
-  const seller_uid = localStorage.getItem("seller_uid");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const { sellerAuth } = useAuth();
+  const { showToast, ToastContainer } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchSeller = async () => {
-     try {
-  const res = await fetch(`${BASE_URL}/sellers/${seller_uid}`);
-  if (!res.ok) throw new Error("Failed to fetch seller");
-  const data = await res.json();
-  setSeller({ 
-    name: data.name, 
-    email: data.email, 
-    contact_number: data.contact_number,
-    profile_picture: data.profile_picture || ""
-  });
-        if (data.profile_picture) {
-          setImagePreview(data.profile_picture);
-        }
-      } catch (err) { console.error(err); }
-    };
-    fetchSeller();
-  }, [seller_uid]);
+    if (sellerAuth.isAuthenticated) {
+      fetchSeller();
+    }
+  }, [sellerAuth.uid]);
+
+  const fetchSeller = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${BASE_URL}/sellers/${sellerAuth.uid}`);
+      if (!res.ok) throw new Error("Failed to fetch seller");
+      const data = await res.json();
+      setSeller({ 
+        name: data.name, 
+        email: data.email, 
+        contact_number: data.contact_number,
+        location: data.location || "",
+        profile_picture: data.profile_picture || ""
+      });
+      if (data.profile_picture) {
+        setImagePreview(data.profile_picture);
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to load profile", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -71,98 +91,295 @@ function SellerSettings() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${BASE_URL}/sellers/${seller_uid}`, {
+      setSaving(true);
+      const res = await fetch(`${BASE_URL}/sellers/${sellerAuth.uid}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(seller),
       });
-      if (res.ok) alert("Profile updated successfully!");
+      if (res.ok) {
+        showToast("Profile updated successfully!", "success");
+      } else {
+        showToast("Failed to update profile", "error");
+      }
     } catch (err) { 
-      console.error(err); 
+      console.error(err);
+      showToast("Error updating profile", "error");
+    } finally {
+      setSaving(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div style={styles.pageWrapper}>
+        <Navbar userType="seller" showSearch={false} />
+        <LoadingSpinner fullScreen={false} />
+        <Footer />
+      </div>
+    );
+  }
+
   return (
-    <div className="dashboard-container">
-      <BackButton to="/seller-dashboard" />
-      <h1 className="dashboard-title">⚙️ Seller Settings</h1>
-      <p className="dashboard-subtitle">Manage your seller account information</p>
+    <div style={styles.pageWrapper}>
+      <ToastContainer />
+      <Navbar userType="seller" showSearch={false} />
       
-      <form onSubmit={handleUpdate} style={{maxWidth: '600px', margin: '0 auto', background: '#fff', padding: '3rem', borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.1)'}}>
-        {/* Profile Picture Section */}
-        <div style={{marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-          {imagePreview ? (
-            <img 
-              src={imagePreview} 
-              alt="Profile" 
-              style={{width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover', border: '5px solid #667eea', boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'}}
-            />
-          ) : (
-            <div style={{width: '150px', height: '150px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '4rem', fontWeight: 'bold', boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'}}>
-              {seller.name ? seller.name.charAt(0).toUpperCase() : "?"}
+      <div style={styles.container}>
+        <div style={styles.header}>
+          <h1 style={styles.title}>Business Settings</h1>
+          <p style={styles.subtitle}>Manage your seller profile and business information</p>
+        </div>
+
+        <form onSubmit={handleUpdate} style={styles.formCard}>
+          {/* Profile Picture Section */}
+          <div style={styles.profileSection}>
+            <div style={styles.avatarWrapper}>
+              {imagePreview ? (
+                <img 
+                  src={imagePreview} 
+                  alt="Profile" 
+                  style={styles.avatar}
+                />
+              ) : (
+                <div style={styles.avatarPlaceholder}>
+                  {seller.name ? seller.name.charAt(0).toUpperCase() : "?"}
+                </div>
+              )}
+              <label style={styles.changePhotoBtn}>
+                <FiCamera size={18} />
+                <span>Change Photo</span>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleImageChange}
+                  style={styles.fileInput}
+                />
+              </label>
             </div>
-          )}
-          <label style={{cursor: 'pointer', padding: '0.8rem 1.5rem', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', borderRadius: '25px', fontWeight: 'bold', transition: 'transform 0.2s', border: 'none', marginTop: '1rem'}}>
-            <span>📷 Change Profile Picture</span>
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={handleImageChange}
-              style={{display: 'none'}}
-            />
-          </label>
-        </div>
+          </div>
 
-        {/* Form Fields */}
-        <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
-          <div>
-            <label style={{display: 'block', fontSize: '0.95rem', fontWeight: '600', color: '#555', marginBottom: '0.5rem'}}>👤 Name</label>
-            <input 
-              style={{width: '100%', border: '2px solid #e0e0e0', padding: '1rem', borderRadius: '10px', fontSize: '1rem', outline: 'none', transition: 'border 0.3s'}}
-              value={seller.name} 
-              onChange={e => setSeller({...seller, name:e.target.value})} 
-              placeholder="Your Name" 
-              required 
-              onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-          </div>
-          <div>
-            <label style={{display: 'block', fontSize: '0.95rem', fontWeight: '600', color: '#555', marginBottom: '0.5rem'}}>✉️ Email</label>
-            <input 
-              style={{width: '100%', border: '2px solid #e0e0e0', padding: '1rem', borderRadius: '10px', fontSize: '1rem', outline: 'none', transition: 'border 0.3s'}}
-              value={seller.email} 
-              onChange={e => setSeller({...seller, email:e.target.value})} 
-              placeholder="your.email@example.com" 
-              type="email"
-              required 
-              onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-          </div>
-          <div>
-            <label style={{display: 'block', fontSize: '0.95rem', fontWeight: '600', color: '#555', marginBottom: '0.5rem'}}>📞 Contact Number</label>
-            <input 
-              style={{width: '100%', border: '2px solid #e0e0e0', padding: '1rem', borderRadius: '10px', fontSize: '1rem', outline: 'none', transition: 'border 0.3s'}}
-              value={seller.contact_number} 
-              onChange={e => setSeller({...seller, contact_number:e.target.value})} 
-              placeholder="+63 912 345 6789" 
-              required 
-              onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-          </div>
-        </div>
+          {/* Form Fields */}
+          <div style={styles.formGrid}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FiUser size={16} />
+                <span>Business Name</span>
+              </label>
+              <input 
+                style={styles.input}
+                value={seller.name} 
+                onChange={e => setSeller({...seller, name:e.target.value})} 
+                placeholder="Your Fish Market Name" 
+                required 
+                disabled={saving}
+              />
+            </div>
 
-        <button 
-          type="submit" 
-          style={{marginTop: '2rem', width: '100%', padding: '1rem', border: 'none', borderRadius: '10px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', transition: 'transform 0.2s'}}
-        >
-          ✔ Update Profile
-        </button>
-      </form>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FiMail size={16} />
+                <span>Email Address</span>
+              </label>
+              <input 
+                style={styles.input}
+                value={seller.email} 
+                onChange={e => setSeller({...seller, email:e.target.value})} 
+                placeholder="your@email.com" 
+                type="email"
+                required 
+                disabled={saving}
+              />
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FiPhone size={16} />
+                <span>Contact Number</span>
+              </label>
+              <input 
+                style={styles.input}
+                value={seller.contact_number} 
+                onChange={e => setSeller({...seller, contact_number:e.target.value})} 
+                placeholder="09XX XXX XXXX" 
+                required 
+                disabled={saving}
+              />
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FiMapPin size={16} />
+                <span>Location</span>
+              </label>
+              <input 
+                style={styles.input}
+                value={seller.location} 
+                onChange={e => setSeller({...seller, location:e.target.value})} 
+                placeholder="e.g., Manila, Cebu" 
+                required 
+                disabled={saving}
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            style={styles.submitButton}
+            disabled={saving}
+          >
+            {saving ? (
+              <LoadingSpinner size="small" />
+            ) : (
+              <>
+                <FiSave size={18} />
+                <span>Save Changes</span>
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+
+      <Footer />
     </div>
   );
 }
+
+const styles = {
+  pageWrapper: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    background: colors.neutral.lightest,
+    fontFamily: typography.fontFamily.primary,
+  },
+  container: {
+    flex: 1,
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: '2rem',
+    width: '100%',
+  },
+  header: {
+    marginBottom: '2rem',
+  },
+  title: {
+    fontSize: typography.fontSize['3xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.neutral.darkest,
+    marginBottom: '0.5rem',
+    fontFamily: typography.fontFamily.heading,
+  },
+  subtitle: {
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.dark,
+  },
+  formCard: {
+    background: colors.neutral.white,
+    borderRadius: borderRadius.xl,
+    padding: '2.5rem',
+    boxShadow: shadows.card,
+    border: `1px solid ${colors.neutral.light}`,
+  },
+  profileSection: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '2.5rem',
+    paddingBottom: '2rem',
+    borderBottom: `1px solid ${colors.neutral.light}`,
+  },
+  avatarWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '1rem',
+  },
+  avatar: {
+    width: '150px',
+    height: '150px',
+    borderRadius: borderRadius.full,
+    objectFit: 'cover',
+    border: `4px solid ${colors.primary.main}`,
+    boxShadow: shadows.lg,
+  },
+  avatarPlaceholder: {
+    width: '150px',
+    height: '150px',
+    borderRadius: borderRadius.full,
+    background: gradients.ocean,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: colors.neutral.white,
+    fontSize: '4rem',
+    fontWeight: typography.fontWeight.bold,
+    boxShadow: shadows.lg,
+    fontFamily: typography.fontFamily.heading,
+  },
+  changePhotoBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.75rem 1.5rem',
+    background: colors.neutral.lightest,
+    color: colors.neutral.darkest,
+    borderRadius: borderRadius.full,
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.sm,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    border: `2px solid ${colors.neutral.light}`,
+  },
+  fileInput: {
+    display: 'none',
+  },
+  formGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.5rem',
+  },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+  },
+  label: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.neutral.darkest,
+  },
+  input: {
+    width: '100%',
+    padding: '0.875rem 1rem',
+    border: `2px solid ${colors.neutral.light}`,
+    borderRadius: borderRadius.lg,
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.darkest,
+    outline: 'none',
+    transition: 'all 0.2s ease',
+    fontFamily: typography.fontFamily.primary,
+  },
+  submitButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    width: '100%',
+    padding: '1rem',
+    border: 'none',
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.bold,
+    cursor: 'pointer',
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    boxShadow: shadows.md,
+    transition: 'all 0.2s ease',
+    marginTop: '2rem',
+  },
+};
 
 export default SellerSettings;

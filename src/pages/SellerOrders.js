@@ -1,27 +1,42 @@
 import React, { useEffect, useState } from "react";
-import "../App.css";
-import BackButton from "../components/BackButton";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { useToast } from "../components/Toast";
+import { FiPackage, FiTruck, FiCheckCircle, FiXCircle, FiUser, FiPhone } from "react-icons/fi";
+import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 function SellerOrders() {
   const [orders, setOrders] = useState([]);
-  const seller_uid = localStorage.getItem("seller_uid");
+  const [loading, setLoading] = useState(true);
+  const { sellerAuth } = useAuth();
+  const { showToast, ToastContainer } = useToast();
+  const navigate = useNavigate();
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/orders/seller/${seller_uid}`);
+      setLoading(true);
+      const res = await fetch(`${BASE_URL}/orders/seller/${sellerAuth.uid}`);
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : [data]);
     } catch (err) {
       console.error("Failed to fetch seller orders:", err);
+      showToast("Failed to load orders", "error");
       setOrders([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, [seller_uid]);
+    if (sellerAuth.isAuthenticated) {
+      fetchOrders();
+    }
+  }, [sellerAuth.uid]);
 
   const handleAcceptOrder = async (orderUid) => {
     try {
@@ -31,24 +46,43 @@ function SellerOrders() {
         body: JSON.stringify({ status: "confirmed" }),
       });
       if (res.ok) {
+        showToast("Order confirmed successfully!", "success");
         fetchOrders();
       } else {
-        const errorData = await res.json().catch(() => ({ detail: "Unknown error" }));
-        alert(`Failed to confirm order: ${errorData.detail || "Unknown error"}`);
+        showToast("Failed to confirm order", "error");
       }
     } catch (err) {
-      alert(`Error confirming order: ${err.message}`);
+      showToast("Error confirming order", "error");
     }
   };
 
   const handleCancelOrder = async (orderUid) => {
-    if (!window.confirm("Are you sure you want to cancel/delete this order?")) return;
-
     try {
       const res = await fetch(`${BASE_URL}/orders/${orderUid}`, { method: "DELETE" });
-      if (res.ok) fetchOrders();
+      if (res.ok) {
+        showToast("Order cancelled successfully", "success");
+        fetchOrders();
+      }
     } catch (err) {
-      alert(`Error cancelling order: ${err.message}`);
+      showToast("Error cancelling order", "error");
+    }
+  };
+
+  const handleUpdateStatus = async (orderUid, newStatus) => {
+    try {
+      const res = await fetch(`${BASE_URL}/orders/${orderUid}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        showToast(`Order marked as ${newStatus}!`, "success");
+        fetchOrders();
+      } else {
+        showToast("Failed to update order status", "error");
+      }
+    } catch (err) {
+      showToast("Error updating order", "error");
     }
   };
 
@@ -66,87 +100,321 @@ function SellerOrders() {
     return texts[status] || status;
   };
 
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'pending': return <FiPackage size={20} />;
+      case 'confirmed':
+      case 'processing': return <FiTruck size={20} />;
+      case 'delivered': return <FiCheckCircle size={20} />;
+      case 'cancelled':
+      case 'cancelled_by_buyer':
+      case 'cancelled_by_seller': return <FiXCircle size={20} />;
+      default: return <FiPackage size={20} />;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return colors.warning;
+      case 'confirmed':
+      case 'processing': return colors.info;
+      case 'delivered': return colors.success;
+      case 'cancelled':
+      case 'cancelled_by_buyer':
+      case 'cancelled_by_seller': return colors.error;
+      default: return colors.neutral.medium;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={styles.pageWrapper}>
+        <Navbar userType="seller" showSearch={false} />
+        <LoadingSpinner fullScreen={false} />
+        <Footer />
+      </div>
+    );
+  }
+
   return (
-    <div className="dashboard-container">
-      <BackButton to="/seller-dashboard" />
-      <h1 className="dashboard-title">🧾 My Orders</h1>
-      <p className="dashboard-subtitle">Manage orders from your customers</p>
-
-      {orders.length === 0 ? (
-        <p style={{ color: "#999", fontSize: "1.1rem" }}>No orders yet 🐠</p>
-      ) : (
-        <div className="dashboard-cards">
-          {orders.map((order) => (
-            <div key={order.uid} className="card">
-              <h3>{order.fish_product_name}</h3>
-              <p style={{ fontSize: "0.8rem", color: "#aaa", marginBottom: "1rem" }}>
-                Order ID: {order.uid.substring(0, 8)}...
-              </p>
-
-              <div style={{ textAlign: "left", marginBottom: "1rem" }}>
-                <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.3rem" }}>
-                  <strong>👤 Buyer:</strong> {order.buyer_name}
-                </p>
-                <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.3rem" }}>
-                  <strong>📱 Contact:</strong> {order.buyer_contact}
-                </p>
-                <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.3rem" }}>
-                  <strong>📦 Quantity:</strong> {order.quantity} pcs
-                </p>
-                <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.5rem" }}>
-                  <strong>💰 Total:</strong> 
-                  <span style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#4caf50" }}>
-                    ₱{order.total_price}
-                  </span>
-                </p>
-              </div>
-
-              <div style={{ marginBottom: "1rem" }}>
-                <span
-                  style={{
-                    display: "inline-block",
-                    padding: "0.4rem 0.8rem",
-                    borderRadius: "20px",
-                    fontSize: "0.85rem",
-                    fontWeight: "bold",
-                    background:
-                      order.status === "pending"
-                        ? "#fff3cd"
-                        : order.status === "confirmed"
-                        ? "#d4edda"
-                        : order.status === "cancelled"
-                        ? "#f8d7da"
-                        : "#e2e3e5",
-                    color:
-                      order.status === "pending"
-                        ? "#856404"
-                        : order.status === "confirmed"
-                        ? "#155724"
-                        : order.status === "cancelled"
-                        ? "#721c24"
-                        : "#383d41",
-                  }}
-                >
-                  {getStatusText(order.status)}
-                </span>
-              </div>
-
-              {order.status === "pending" && (
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button onClick={() => handleAcceptOrder(order.uid)} style={{ flex: 1, padding: "0.6rem", background: "#4caf50", color: "white", border: "none", borderRadius: "25px", fontWeight: "bold", cursor: "pointer" }}>
-                    ✓ Confirm
-                  </button>
-                  <button onClick={() => handleCancelOrder(order.uid)} style={{ flex: 1, padding: "0.6rem", background: "#f44336", color: "white", border: "none", borderRadius: "25px", fontWeight: "bold", cursor: "pointer" }}>
-                    ✗ Cancel
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
+    <div style={styles.pageWrapper}>
+      <ToastContainer />
+      <Navbar userType="seller" showSearch={false} />
+      
+      <div style={styles.container}>
+        <div style={styles.header}>
+          <h1 style={styles.title}>Customer Orders</h1>
+          <p style={styles.subtitle}>Manage and fulfill customer orders</p>
         </div>
-      )}
+
+        {orders.length === 0 ? (
+          <div style={styles.emptyState}>
+            <span style={styles.emptyIcon}>📦</span>
+            <p style={styles.emptyText}>No orders yet</p>
+            <p style={styles.emptySubtext}>Orders from customers will appear here</p>
+          </div>
+        ) : (
+          <div style={styles.ordersGrid}>
+            {orders.map((order) => (
+              <div key={order.uid} style={styles.orderCard}>
+                <div style={styles.orderHeader}>
+                  <div>
+                    <h3 style={styles.productName}>{order.fish_product_name}</h3>
+                    <p style={styles.orderId}>Order #{order.uid.substring(0, 8)}</p>
+                  </div>
+                  <div style={{...styles.statusBadge, background: `${getStatusColor(order.status)}20`, color: getStatusColor(order.status)}}>
+                    {getStatusIcon(order.status)}
+                    <span>{getStatusText(order.status)}</span>
+                  </div>
+                </div>
+
+                <div style={styles.orderDetails}>
+                  <div style={styles.detailRow}>
+                    <div style={styles.detailWithIcon}>
+                      <FiUser size={16} />
+                      <span style={styles.detailLabel}>Buyer:</span>
+                    </div>
+                    <span style={styles.detailValue}>{order.buyer_name}</span>
+                  </div>
+                  {order.buyer_contact && (
+                    <div style={styles.detailRow}>
+                      <div style={styles.detailWithIcon}>
+                        <FiPhone size={16} />
+                        <span style={styles.detailLabel}>Contact:</span>
+                      </div>
+                      <span style={styles.detailValue}>{order.buyer_contact}</span>
+                    </div>
+                  )}
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>Quantity:</span>
+                    <span style={styles.detailValue}>{order.quantity} pcs</span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>Total:</span>
+                    <span style={styles.priceValue}>₱{order.total_price}</span>
+                  </div>
+                </div>
+
+                <div style={styles.orderActions}>
+                  {order.status === 'pending' && (
+                    <>
+                      <button 
+                        style={styles.confirmBtn}
+                        onClick={() => handleAcceptOrder(order.uid)}
+                      >
+                        <FiCheckCircle size={16} />
+                        <span>Confirm</span>
+                      </button>
+                      <button 
+                        style={styles.cancelBtn}
+                        onClick={() => handleCancelOrder(order.uid)}
+                      >
+                        <FiXCircle size={16} />
+                        <span>Cancel</span>
+                      </button>
+                    </>
+                  )}
+                  {order.status === 'confirmed' && (
+                    <button 
+                      style={styles.updateBtn}
+                      onClick={() => handleUpdateStatus(order.uid, 'delivered')}
+                    >
+                      <FiTruck size={16} />
+                      <span>Mark as Delivered</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Footer />
     </div>
   );
 }
+
+const styles = {
+  pageWrapper: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    background: colors.neutral.lightest,
+    fontFamily: typography.fontFamily.primary,
+  },
+  container: {
+    flex: 1,
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '2rem',
+    width: '100%',
+  },
+  header: {
+    marginBottom: '2rem',
+  },
+  title: {
+    fontSize: typography.fontSize['3xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.neutral.darkest,
+    marginBottom: '0.5rem',
+    fontFamily: typography.fontFamily.heading,
+  },
+  subtitle: {
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.dark,
+  },
+  emptyState: {
+    textAlign: 'center',
+    padding: '4rem 2rem',
+    background: colors.neutral.white,
+    borderRadius: borderRadius.xl,
+    boxShadow: shadows.card,
+  },
+  emptyIcon: {
+    fontSize: '5rem',
+    display: 'block',
+    marginBottom: '1rem',
+  },
+  emptyText: {
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.neutral.darkest,
+    marginBottom: '0.5rem',
+  },
+  emptySubtext: {
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.medium,
+  },
+  ordersGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.5rem',
+  },
+  orderCard: {
+    background: colors.neutral.white,
+    borderRadius: borderRadius.lg,
+    padding: '1.5rem',
+    boxShadow: shadows.card,
+    border: `1px solid ${colors.neutral.light}`,
+  },
+  orderHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '1.5rem',
+    gap: '1rem',
+  },
+  productName: {
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.neutral.darkest,
+    marginBottom: '0.25rem',
+  },
+  orderId: {
+    fontSize: typography.fontSize.xs,
+    color: colors.neutral.medium,
+    margin: 0,
+  },
+  statusBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.5rem 1rem',
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    whiteSpace: 'nowrap',
+  },
+  orderDetails: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+    marginBottom: '1.5rem',
+    paddingBottom: '1.5rem',
+    borderBottom: `1px solid ${colors.neutral.light}`,
+  },
+  detailRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  detailWithIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    color: colors.neutral.medium,
+  },
+  detailLabel: {
+    fontSize: typography.fontSize.sm,
+    color: colors.neutral.medium,
+  },
+  detailValue: {
+    fontSize: typography.fontSize.sm,
+    color: colors.neutral.darkest,
+    fontWeight: typography.fontWeight.medium,
+  },
+  priceValue: {
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.success,
+    fontFamily: typography.fontFamily.heading,
+  },
+  orderActions: {
+    display: 'flex',
+    gap: '1rem',
+    flexWrap: 'wrap',
+  },
+  confirmBtn: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '0.75rem 1.5rem',
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    border: 'none',
+    borderRadius: borderRadius.full,
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.sm,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: shadows.sm,
+  },
+  cancelBtn: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '0.75rem 1.5rem',
+    background: 'transparent',
+    color: colors.error,
+    border: `2px solid ${colors.error}`,
+    borderRadius: borderRadius.full,
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.sm,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  },
+  updateBtn: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '0.75rem 1.5rem',
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    border: 'none',
+    borderRadius: borderRadius.full,
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.sm,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: shadows.sm,
+  },
+};
 
 export default SellerOrders;

@@ -1,141 +1,229 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import SearchBar from "../components/SearchBar";
-import BackButton from "../components/BackButton";
+import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import { FiBox, FiShoppingCart, FiSettings, FiTrendingUp } from "react-icons/fi";
+import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
 function SellerDashboard() {
   const navigate = useNavigate();
-
-  // ✅ Redirect if no token
-  useEffect(() => {
-    const token = localStorage.getItem("seller_token");
-    if (!token) {
-      navigate("/"); // redirect to homepage
-    }
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("seller_token");
-    localStorage.removeItem("seller_name");
-    navigate("/"); // go to homepage after logout
-  };
+  const { sellerAuth } = useAuth();
 
   return (
-    <div
-      className="dashboard-container"
-      style={{
-        background:
-          "linear-gradient(135deg, #debbcbff 0%, #a7d6e1ff 50%, #f190c5ff 100%)",
-        minHeight: "100vh",
-        padding: "20px",
-      }}
-    >
-      <BackButton to="/" />
-      {/* 🟦 Header */}
-      <header style={styles.header}>
-        <div style={styles.headerContainer}>
-          <h1 style={styles.logo}>IsdaMarket</h1>
-
-          <div style={styles.searchLogoutWrapper}>
-            <SearchBar defaultType="products" userType="seller" />
-            <button onClick={handleLogout} style={styles.logoutButton}>
-              Logout
-            </button>
+    <div style={styles.pageWrapper}>
+      <Navbar userType="seller" showSearch={true} />
+      
+      <div style={styles.container}>
+        <div style={styles.hero}>
+          <div style={styles.welcomeSection}>
+            <h1 style={styles.title}>Welcome back, {sellerAuth.name}! 🐠</h1>
+            <p style={styles.subtitle}>
+              Manage your seafood business with ease. Reach more customers and grow your sales today.
+            </p>
+          </div>
+          
+          <div style={styles.statsGrid}>
+            <div style={styles.statCard}>
+              <div style={styles.statIcon}>📦</div>
+              <div style={styles.statContent}>
+                <div style={styles.statNumber}>0</div>
+                <div style={styles.statLabel}>Pending Orders</div>
+              </div>
+            </div>
+            <div style={styles.statCard}>
+              <div style={styles.statIcon}>🐟</div>
+              <div style={styles.statContent}>
+                <div style={styles.statNumber}>0</div>
+                <div style={styles.statLabel}>Listed Products</div>
+              </div>
+            </div>
+            <div style={styles.statCard}>
+              <div style={styles.statIcon}>💰</div>
+              <div style={styles.statContent}>
+                <div style={styles.statNumber}>₱0</div>
+                <div style={styles.statLabel}>Total Revenue</div>
+              </div>
+            </div>
           </div>
         </div>
-      </header>
 
-      {/* 🟩 Main content */}
-      <div style={styles.main}>
-        <h1>🐠Grow Your Sales Today!</h1>
-        <p>
-          Welcome {localStorage.getItem("seller_name")}! Manage your products
-          and check your orders.
-        </p>
+        <div style={styles.sectionHeader}>
+          <h2 style={styles.sectionTitle}>Manage Your Business</h2>
+          <p style={styles.sectionSubtitle}>What would you like to do today?</p>
+        </div>
 
         <div style={styles.cards}>
-          <div style={styles.card}>
-            <h2>📦 My Products</h2>
-            <button onClick={() => navigate("/seller-dashboard/products")}>
-              View Products
-            </button>
+          <div style={styles.card} onClick={() => navigate("/seller-dashboard/products")}>
+            <div style={styles.cardIcon}>
+              <FiBox size={40} />
+            </div>
+            <h3 style={styles.cardTitle}>My Products</h3>
+            <p style={styles.cardText}>Add new products, update inventory, and manage your seafood listings</p>
+            <button style={styles.cardBtn}>Manage Products →</button>
           </div>
 
-          <div style={styles.card}>
-            <h2>🧾 My Orders</h2>
-            <button onClick={() => navigate("/seller-dashboard/orders")}>
-              View Orders
-            </button>
+          <div style={styles.card} onClick={() => navigate("/seller-dashboard/orders")}>
+            <div style={styles.cardIcon}>
+              <FiShoppingCart size={40} />
+            </div>
+            <h3 style={styles.cardTitle}>Customer Orders</h3>
+            <p style={styles.cardText}>View and fulfill customer orders, track deliveries and payments</p>
+            <button style={styles.cardBtn}>View Orders →</button>
           </div>
 
-          <div style={styles.card}>
-            <h2>⚙️ Settings</h2>
-            <button onClick={() => navigate("/seller-dashboard/settings")}>
-              Settings
-            </button>
+          <div style={styles.card} onClick={() => navigate("/seller-dashboard/settings")}>
+            <div style={styles.cardIcon}>
+              <FiSettings size={40} />
+            </div>
+            <h3 style={styles.cardTitle}>Shop Settings</h3>
+            <p style={styles.cardText}>Update your shop profile, business info, and account preferences</p>
+            <button style={styles.cardBtn}>Manage Settings →</button>
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
 
 const styles = {
-  header: {
-    marginBottom: "30px",
+  pageWrapper: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    background: colors.neutral.lightest,
+    fontFamily: typography.fontFamily.primary,
   },
-  headerContainer: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    maxWidth: "800px",
-    margin: "0 auto",
-    padding: "0 10px",
-    flexWrap: "wrap",
-    gap: "10px",
+  container: {
+    flex: 1,
+    maxWidth: '1400px',
+    margin: '0 auto',
+    padding: '3rem 2rem',
+    width: '100%',
   },
-  logo: {
-    fontSize: "clamp(24px, 5vw, 48px)",
-    fontWeight: "bold",
-    color: "#fcfcfcff",
-    letterSpacing: "2px",
+  hero: {
+    marginBottom: '4rem',
   },
-  searchLogoutWrapper: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    flexWrap: "nowrap",
+  welcomeSection: {
+    marginBottom: '2rem',
   },
-  logoutButton: {
-    backgroundColor: "#bd8ab1ff",
-    color: "#fff",
-    border: "none",
-    padding: "10px 16px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontWeight: "bold",
-    whiteSpace: "nowrap",
+  title: {
+    fontSize: 'clamp(2rem, 4vw, 3rem)',
+    fontWeight: typography.fontWeight.bold,
+    color: colors.neutral.darkest,
+    marginBottom: '1rem',
+    fontFamily: typography.fontFamily.heading,
   },
-  main: {
-    textAlign: "center",
-    padding: "0 10px",
+  subtitle: {
+    fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+    color: colors.neutral.dark,
+    margin: 0,
+    maxWidth: '700px',
+  },
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '1.5rem',
+    marginTop: '2rem',
+  },
+  statCard: {
+    background: colors.neutral.white,
+    padding: '1.5rem',
+    borderRadius: borderRadius.lg,
+    boxShadow: shadows.card,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    border: `1px solid ${colors.neutral.light}`,
+  },
+  statIcon: {
+    fontSize: '2.5rem',
+  },
+  statContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.25rem',
+  },
+  statNumber: {
+    fontSize: typography.fontSize['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.primary.main,
+    fontFamily: typography.fontFamily.heading,
+  },
+  statLabel: {
+    fontSize: typography.fontSize.sm,
+    color: colors.neutral.dark,
+  },
+  sectionHeader: {
+    marginBottom: '2rem',
+  },
+  sectionTitle: {
+    fontSize: typography.fontSize['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.neutral.darkest,
+    marginBottom: '0.5rem',
+    fontFamily: typography.fontFamily.heading,
+  },
+  sectionSubtitle: {
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.dark,
+    margin: 0,
   },
   cards: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "20px",
-    marginTop: "30px",
-    flexWrap: "wrap",
-    padding: "0 10px",
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: '2rem',
   },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: "12px",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    padding: "40px 20px",
-    width: "100%",
-    maxWidth: "220px",
-    minWidth: "150px",
+    background: colors.neutral.white,
+    borderRadius: borderRadius.xl,
+    padding: '2.5rem',
+    boxShadow: shadows.card,
+    textAlign: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '1.5rem',
+    border: `1px solid ${colors.neutral.light}`,
+  },
+  cardIcon: {
+    width: '80px',
+    height: '80px',
+    background: gradients.oceanLight,
+    borderRadius: borderRadius.full,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: colors.primary.dark,
+  },
+  cardTitle: {
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.neutral.darkest,
+    margin: 0,
+    fontFamily: typography.fontFamily.heading,
+  },
+  cardText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.neutral.dark,
+    lineHeight: '1.6',
+    margin: 0,
+  },
+  cardBtn: {
+    marginTop: 'auto',
+    padding: '0.875rem 2rem',
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    border: 'none',
+    borderRadius: borderRadius.full,
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.sm,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: shadows.sm,
   },
 };
 

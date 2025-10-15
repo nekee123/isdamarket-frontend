@@ -1,15 +1,27 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "../App.css";
-import BackButton from "../components/BackButton";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { useToast } from "../components/Toast";
+import { FiMail, FiLock, FiUser, FiPhone, FiMapPin, FiArrowLeft } from "react-icons/fi";
+import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 function SellerLogin() {
   const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { sellerAuth, loginSeller } = useAuth();
+  const { showToast, ToastContainer } = useToast();
 
-  // ---------------- LOGIN ----------------
+  // Redirect if already logged in
+  useEffect(() => {
+    if (sellerAuth.isAuthenticated) {
+      navigate("/seller-dashboard");
+    }
+  }, [sellerAuth.isAuthenticated, navigate]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -17,6 +29,7 @@ function SellerLogin() {
     const password = form.password.value;
 
     try {
+      setLoading(true);
       const res = await fetch(`${BASE_URL}/sellers/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -25,26 +38,22 @@ function SellerLogin() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Login failed" }));
-        alert(`Login failed: ${errorData.detail || "Check your credentials"}`);
-        console.error("Login error:", errorData);
+        showToast(errorData.detail || "Check your credentials", "error");
         return;
       }
 
       const data = await res.json();
-
-      // Save token and user info
-      localStorage.setItem("seller_token", data.token); // <--- token
-      localStorage.setItem("seller_uid", data.uid);
-      localStorage.setItem("seller_name", data.name);
-
+      loginSeller(data.token, data.uid, data.name);
+      showToast("Login successful!", "success");
       navigate("/seller-dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      alert("Login failed. Cannot connect to server. Check console for errors.");
+      showToast("Cannot connect to server", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ---------------- SIGNUP ----------------
   const handleSignUp = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -55,6 +64,7 @@ function SellerLogin() {
     const password = form.password.value;
 
     try {
+      setLoading(true);
       const res = await fetch(`${BASE_URL}/sellers/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -63,82 +73,368 @@ function SellerLogin() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Sign up failed" }));
-        alert(`Sign up failed: ${errorData.detail || "Unknown error"}`);
-        console.error("Sign up error:", errorData);
+        showToast(errorData.detail || "Unknown error", "error");
         return;
       }
 
       const data = await res.json();
-
-      // Save token and user info
-      localStorage.setItem("seller_token", data.token); // <--- token
-      localStorage.setItem("seller_uid", data.uid);
-      localStorage.setItem("seller_name", data.name);
-
+      loginSeller(data.token, data.uid, data.name);
+      showToast("Account created successfully!", "success");
       navigate("/seller-dashboard");
     } catch (err) {
       console.error("Sign up error:", err);
-      alert("Sign up failed. Cannot connect to server. Check console for errors.");
+      showToast("Cannot connect to server", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const inputStyle = {
-    padding: "1rem", border: "2px solid #100707ff", borderRadius: "10px",
-    fontSize: "1rem", outline: "none", transition: "border 0.3s", marginBottom: "0.5rem"
-  };
-
-  const submitStyle = {
-    padding: "1rem", border: "none", borderRadius: "25px", fontSize: "1.1rem",
-    fontWeight: "bold", cursor: "pointer", background: "c07b94ff", color: "#111010ff"
-  };
-
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #fddde6, #d4f1f9)", padding: "2rem" }}>
-      <BackButton to="/" />
-      <div style={{ background: "#e0cdcdff", borderRadius: "20px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", padding: "3rem", width: "100%", maxWidth: "450px" }}>
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🐟</div>
-          <h2 style={{ fontSize: "2rem", color: "#c07b94ff", marginBottom: "0.5rem", fontWeight: "bold", textShadow: "1px 1px 2px rgba(20, 19, 19, 0.8)" }}>
-            Seller {isLogin ? "Login" : "Sign Up"}
-          </h2>
-          <p style={{ color: "#060505ff", fontSize: "0.95rem" }}>Manage your fish market business</p>
-        </div>
+    <div style={styles.pageWrapper}>
+      <ToastContainer />
+      
+      {/* Background decorations */}
+      <div style={styles.bgDecoration1}></div>
+      <div style={styles.bgDecoration2}></div>
+      
+      <div style={styles.container}>
+        <Link to="/" style={styles.backButton}>
+          <FiArrowLeft size={20} />
+          <span>Back to Home</span>
+        </Link>
 
-        <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem" }}>
-          <button onClick={() => setIsLogin(true)} style={{
-            flex: 1, padding: "0.8rem", border: "none", borderRadius: "25px", fontSize: "1rem", fontWeight: "bold",
-            cursor: "pointer", transition: "all 0.3s", background: isLogin ? "#c07b94ff" : "#ccbebeff", color: "#f7f7f7ff"
-          }}>
-            Login
-          </button>
-          <button onClick={() => setIsLogin(false)} style={{
-            flex: 1, padding: "0.8rem", border: "none", borderRadius: "25px", fontSize: "1rem", fontWeight: "bold",
-            cursor: "pointer", transition: "all 0.3s", background: !isLogin ? "#c07b94ff" : "#cdbac1ff", color: "#fff"
-          }}>
-            Sign Up
-          </button>
-        </div>
+        <div style={styles.formCard}>
+          <div style={styles.header}>
+            <div style={styles.iconWrapper}>
+              <span style={styles.icon}>🐟</span>
+            </div>
+            <h1 style={styles.title}>
+              {isLogin ? "Seller Portal" : "Start Selling Fish"}
+            </h1>
+            <p style={styles.subtitle}>
+              {isLogin ? "Manage your fish market business" : "Create your seller account"}
+            </p>
+          </div>
 
-        {isLogin ? (
-          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-            <input type="email" name="email" placeholder="Email" required style={inputStyle} />
-            <input type="password" name="password" placeholder="Password" required style={inputStyle} />
-            <button type="submit" style={submitStyle}>Login</button>
-          </form>
-        ) : (
-          <form onSubmit={handleSignUp} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-            <input type="text" name="name" placeholder="Name" required style={inputStyle} />
-            <input type="email" name="email" placeholder="Email" required style={inputStyle} />
-            <input type="text" name="contact" placeholder="Contact Number" required style={inputStyle} />
-            <input type="text" name="location" placeholder="Location (e.g., Manila, Cebu)" required style={inputStyle} />
-            <input type="password" name="password" placeholder="Password" required style={inputStyle} />
-            <button type="submit" style={submitStyle}>Sign Up</button>
-          </form>
-        )}
+          <div style={styles.tabContainer}>
+            <button 
+              onClick={() => setIsLogin(true)}
+              style={{...styles.tab, ...(isLogin ? styles.tabActive : {})}}
+            >
+              Login
+            </button>
+            <button 
+              onClick={() => setIsLogin(false)}
+              style={{...styles.tab, ...(!isLogin ? styles.tabActive : {})}}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {isLogin ? (
+            <form onSubmit={handleLogin} style={styles.form}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Email</label>
+                <div style={styles.inputWrapper}>
+                  <FiMail size={18} style={styles.inputIcon} />
+                  <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="your@email.com" 
+                    required 
+                    style={styles.input}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Password</label>
+                <div style={styles.inputWrapper}>
+                  <FiLock size={18} style={styles.inputIcon} />
+                  <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="••••••••" 
+                    required 
+                    style={styles.input}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <button type="submit" style={styles.submitButton} disabled={loading}>
+                {loading ? <LoadingSpinner size="small" /> : "Login"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSignUp} style={styles.form}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Business Name</label>
+                <div style={styles.inputWrapper}>
+                  <FiUser size={18} style={styles.inputIcon} />
+                  <input 
+                    type="text" 
+                    name="name" 
+                    placeholder="Your Fish Market Name" 
+                    required 
+                    style={styles.input}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Email</label>
+                <div style={styles.inputWrapper}>
+                  <FiMail size={18} style={styles.inputIcon} />
+                  <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="your@email.com" 
+                    required 
+                    style={styles.input}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Contact Number</label>
+                <div style={styles.inputWrapper}>
+                  <FiPhone size={18} style={styles.inputIcon} />
+                  <input 
+                    type="text" 
+                    name="contact" 
+                    placeholder="09XX XXX XXXX" 
+                    required 
+                    style={styles.input}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Location</label>
+                <div style={styles.inputWrapper}>
+                  <FiMapPin size={18} style={styles.inputIcon} />
+                  <input 
+                    type="text" 
+                    name="location" 
+                    placeholder="e.g., Manila, Cebu" 
+                    required 
+                    style={styles.input}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Password</label>
+                <div style={styles.inputWrapper}>
+                  <FiLock size={18} style={styles.inputIcon} />
+                  <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="••••••••" 
+                    required 
+                    style={styles.input}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <button type="submit" style={styles.submitButton} disabled={loading}>
+                {loading ? <LoadingSpinner size="small" /> : "Create Seller Account"}
+              </button>
+            </form>
+          )}
+
+          <div style={styles.footer}>
+            <p style={styles.footerText}>
+              {isLogin ? "Looking to buy fish?" : "Want to buy instead?"}{" "}
+              <Link to="/buyer-login" style={styles.footerLink}>
+                Buyer Login
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
+const styles = {
+  pageWrapper: {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: gradients.oceanLight,
+    padding: '2rem',
+    position: 'relative',
+    overflow: 'hidden',
+    fontFamily: typography.fontFamily.primary,
+  },
+  bgDecoration1: {
+    position: 'absolute',
+    top: '-10%',
+    right: '-5%',
+    width: '400px',
+    height: '400px',
+    background: `${colors.primary.light}30`,
+    borderRadius: borderRadius.full,
+    filter: 'blur(80px)',
+  },
+  bgDecoration2: {
+    position: 'absolute',
+    bottom: '-10%',
+    left: '-5%',
+    width: '350px',
+    height: '350px',
+    background: `${colors.accent.light}30`,
+    borderRadius: borderRadius.full,
+    filter: 'blur(80px)',
+  },
+  container: {
+    width: '100%',
+    maxWidth: '480px',
+    position: 'relative',
+    zIndex: 1,
+  },
+  backButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    marginBottom: '1.5rem',
+    padding: '0.5rem 1rem',
+    background: colors.neutral.white,
+    color: colors.neutral.darkest,
+    textDecoration: 'none',
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    boxShadow: shadows.sm,
+    transition: 'all 0.2s ease',
+  },
+  formCard: {
+    background: colors.neutral.white,
+    borderRadius: borderRadius.xl,
+    padding: '2.5rem',
+    boxShadow: shadows.lg,
+    border: `1px solid ${colors.neutral.light}`,
+  },
+  header: {
+    textAlign: 'center',
+    marginBottom: '2rem',
+  },
+  iconWrapper: {
+    marginBottom: '1rem',
+  },
+  icon: {
+    fontSize: '4rem',
+    display: 'inline-block',
+    animation: 'float 3s ease-in-out infinite',
+  },
+  title: {
+    fontSize: typography.fontSize['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.neutral.darkest,
+    marginBottom: '0.5rem',
+    fontFamily: typography.fontFamily.heading,
+  },
+  subtitle: {
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.dark,
+  },
+  tabContainer: {
+    display: 'flex',
+    gap: '0.5rem',
+    marginBottom: '2rem',
+    background: colors.neutral.lightest,
+    padding: '0.25rem',
+    borderRadius: borderRadius.full,
+  },
+  tab: {
+    flex: 1,
+    padding: '0.75rem',
+    border: 'none',
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    background: 'transparent',
+    color: colors.neutral.dark,
+  },
+  tabActive: {
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    boxShadow: shadows.sm,
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.25rem',
+  },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+  },
+  label: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.neutral.darkest,
+  },
+  inputWrapper: {
+    position: 'relative',
+  },
+  inputIcon: {
+    position: 'absolute',
+    left: '1rem',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: colors.neutral.medium,
+  },
+  input: {
+    width: '100%',
+    padding: '0.875rem 1rem 0.875rem 3rem',
+    border: `2px solid ${colors.neutral.light}`,
+    borderRadius: borderRadius.lg,
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.darkest,
+    outline: 'none',
+    transition: 'all 0.2s ease',
+    fontFamily: typography.fontFamily.primary,
+  },
+  submitButton: {
+    width: '100%',
+    padding: '1rem',
+    border: 'none',
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.bold,
+    cursor: 'pointer',
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    boxShadow: shadows.md,
+    transition: 'all 0.2s ease',
+    marginTop: '0.5rem',
+  },
+  footer: {
+    marginTop: '2rem',
+    textAlign: 'center',
+  },
+  footerText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.neutral.dark,
+  },
+  footerLink: {
+    color: colors.primary.main,
+    fontWeight: typography.fontWeight.semibold,
+    textDecoration: 'none',
+  },
+};
 
 export default SellerLogin;
