@@ -1,0 +1,40 @@
+/* Desktop - show desktop nav, hide mobile menu button */
+.desktop-search,
+.desktop-nav {
+  display: flex;
+}
+
+.mobile-menu-btn {
+  display: none !important;
+}
+
+.mobile-menu {
+  display: none !important;
+}
+
+/* Mobile - hide desktop nav, show mobile menu button */
+@media (max-width: 768px) {
+  .desktop-search {
+    display: none !important;
+  }
+
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .mobile-menu-btn {
+    display: block !important;
+  }
+
+  .mobile-menu {
+    display: block !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (max-width: 1024px) {
+  .desktop-search {
+    max-width: 400px;
+    min-width: 200px;
+  }
+}

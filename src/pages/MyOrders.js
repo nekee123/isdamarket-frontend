@@ -5,7 +5,6 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ReviewModal from "../components/ReviewModal";
-import MessageModal from "../components/MessageModal";
 import { useToast } from "../components/Toast";
 import { FiPackage, FiTruck, FiCheckCircle, FiXCircle, FiStar, FiMapPin, FiMessageCircle } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
@@ -17,7 +16,6 @@ function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [messageModal, setMessageModal] = useState({ isOpen: false, sellerId: null, sellerName: '' });
   const { buyerAuth } = useAuth();
   const { showToast, ToastContainer } = useToast();
   const navigate = useNavigate();
@@ -209,11 +207,7 @@ function MyOrders() {
                 <div style={styles.orderActions}>
                   <button 
                     style={styles.messageBtn}
-                    onClick={() => setMessageModal({
-                      isOpen: true,
-                      sellerId: order.seller_uid,
-                      sellerName: order.seller_name
-                    })}
+                    onClick={() => navigate(`/buyer-dashboard/messages?recipient=${order.seller_uid}&name=${encodeURIComponent(order.seller_name)}`)}
                   >
                     <FiMessageCircle size={16} />
                     <span>Message Seller</span>
@@ -253,15 +247,6 @@ function MyOrders() {
           sellerName={selectedOrder.seller_name}
         />
       )}
-
-      <MessageModal
-        isOpen={messageModal.isOpen}
-        onClose={() => setMessageModal({ isOpen: false, sellerId: null, sellerName: '' })}
-        userType="buyer"
-        userId={buyerAuth.uid}
-        recipientId={messageModal.sellerId}
-        recipientName={messageModal.sellerName}
-      />
 
       <Footer />
     </div>

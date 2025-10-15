@@ -23,25 +23,31 @@ function SellerDashboard() {
           </div>
           
           <div style={styles.statsGrid}>
+            {/* Shows number of orders waiting for your confirmation/processing */}
             <div style={styles.statCard}>
               <div style={styles.statIcon}>📦</div>
               <div style={styles.statContent}>
                 <div style={styles.statNumber}>0</div>
                 <div style={styles.statLabel}>Pending Orders</div>
+                <div style={styles.statHint}>Orders awaiting action</div>
               </div>
             </div>
+            {/* Shows total number of seafood products you have listed for sale */}
             <div style={styles.statCard}>
               <div style={styles.statIcon}>🐟</div>
               <div style={styles.statContent}>
                 <div style={styles.statNumber}>0</div>
                 <div style={styles.statLabel}>Listed Products</div>
+                <div style={styles.statHint}>Active seafood listings</div>
               </div>
             </div>
+            {/* Shows total earnings from all completed orders */}
             <div style={styles.statCard}>
               <div style={styles.statIcon}>💰</div>
               <div style={styles.statContent}>
                 <div style={styles.statNumber}>₱0</div>
                 <div style={styles.statLabel}>Total Revenue</div>
+                <div style={styles.statHint}>From completed sales</div>
               </div>
             </div>
           </div>
@@ -154,6 +160,12 @@ const styles = {
   statLabel: {
     fontSize: typography.fontSize.sm,
     color: colors.neutral.dark,
+  },
+  statHint: {
+    fontSize: typography.fontSize.xs,
+    color: colors.neutral.medium,
+    fontStyle: 'italic',
+    marginTop: '0.25rem',
   },
   sectionHeader: {
     marginBottom: '2rem',

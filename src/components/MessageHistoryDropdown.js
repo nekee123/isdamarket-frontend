@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiMessageCircle, FiX } from 'react-icons/fi';
 import { colors, gradients, shadows, borderRadius, typography } from '../styles/theme';
 
@@ -9,6 +10,7 @@ const MessageHistoryDropdown = ({ userType, userId, onOpenChat }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (userId) {
@@ -34,17 +36,71 @@ const MessageHistoryDropdown = ({ userType, userId, onOpenChat }) => {
 
   const fetchConversations = async () => {
     try {
-      const endpoint = `${BASE_URL}/messages/conversations/${userId}`;
-      const res = await fetch(endpoint);
-      if (res.ok) {
-        const data = await res.json();
-        setConversations(data);
-        setUnreadCount(data.filter(c => c.unread_count > 0).length);
-      } else {
-        // If endpoint doesn't exist, fallback to empty
-        console.log('Conversations endpoint not available yet');
-        setConversations([]);
+      // Fetch both conversations and message notifications
+      const conversationsEndpoint = `${BASE_URL}/messages/conversations/${userId}`;
+      const notificationsEndpoint = userType === 'buyer' 
+        ? `${BASE_URL}/notifications/buyer/${userId}`
+        : `${BASE_URL}/notifications/seller/${userId}`;
+      
+      const [conversationsRes, notificationsRes] = await Promise.all([
+        fetch(conversationsEndpoint),
+        fetch(notificationsEndpoint)
+      ]);
+
+      let allConversations = [];
+      
+      // Get existing conversations
+      if (conversationsRes.ok) {
+        const conversationsData = await conversationsRes.json();
+        allConversations = conversationsData;
       }
+
+      // Get message notifications and merge them
+      if (notificationsRes.ok) {
+        const notificationsData = await notificationsRes.json();
+        // Filter for message notifications only
+        const messageNotifications = notificationsData.filter(n => 
+          n.type === 'new_message' || 
+          n.type === 'message_received' ||
+          n.message?.toLowerCase().includes('message from')
+        );
+
+        // Convert message notifications to conversation format
+        messageNotifications.forEach(notif => {
+          // Extract sender name from message (e.g., "New message from Juan Cruz")
+          let senderName = 'Unknown';
+          const messageText = notif.message || '';
+          
+          // Try to extract name from different message formats
+          if (messageText.includes('from ')) {
+            const parts = messageText.split('from ');
+            if (parts.length > 1) {
+              senderName = parts[1].trim();
+            }
+          }
+
+          // Check if conversation already exists
+          const existingConv = allConversations.find(c => 
+            c.other_user_name === senderName || 
+            (notif.sender_uid && c.other_user_uid === notif.sender_uid)
+          );
+
+          if (!existingConv) {
+            // Add as new conversation
+            allConversations.push({
+              other_user_uid: notif.sender_uid || `notif_${notif.uid}`,
+              other_user_name: senderName,
+              last_message: notif.message || 'New message',
+              last_message_time: notif.created_at,
+              unread_count: 1,
+              from_notification: true
+            });
+          }
+        });
+      }
+
+      setConversations(allConversations);
+      setUnreadCount(allConversations.filter(c => c.unread_count > 0).length);
     } catch (err) {
       console.error('Error fetching conversations:', err);
       setConversations([]);
@@ -53,12 +109,13 @@ const MessageHistoryDropdown = ({ userType, userId, onOpenChat }) => {
 
   const handleConversationClick = (conversation) => {
     setIsOpen(false);
-    if (onOpenChat) {
-      onOpenChat({
-        recipientId: conversation.other_user_uid,
-        recipientName: conversation.other_user_name,
-      });
-    }
+    // Navigate to messages page with recipient info
+    navigate(`/${userType}-dashboard/messages?recipient=${conversation.other_user_uid}&name=${encodeURIComponent(conversation.other_user_name)}`);
+  };
+
+  const handleViewAllMessages = () => {
+    setIsOpen(false);
+    navigate(`/${userType}-dashboard/messages`);
   };
 
   const formatTime = (timestamp) => {
@@ -92,6 +149,9 @@ const MessageHistoryDropdown = ({ userType, userId, onOpenChat }) => {
         <div style={styles.dropdown}>
           <div style={styles.header}>
             <h3 style={styles.title}>Messages</h3>
+            {unreadCount > 0 && (
+              <span style={styles.unreadLabel}>{unreadCount} unread</span>
+            )}
           </div>
 
           <div style={styles.conversationList}>
@@ -102,7 +162,7 @@ const MessageHistoryDropdown = ({ userType, userId, onOpenChat }) => {
                 <p style={styles.emptySubtext}>Start a conversation with a {userType === 'buyer' ? 'seller' : 'buyer'}!</p>
               </div>
             ) : (
-              conversations.map((conversation) => (
+              conversations.slice(0, 5).map((conversation) => (
                 <div
                   key={conversation.other_user_uid}
                   style={{
@@ -134,6 +194,14 @@ const MessageHistoryDropdown = ({ userType, userId, onOpenChat }) => {
               ))
             )}
           </div>
+
+          {conversations.length > 0 && (
+            <div style={styles.footer}>
+              <button style={styles.viewAllBtn} onClick={handleViewAllMessages}>
+                View All Messages →
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -197,6 +265,14 @@ const styles = {
     color: colors.neutral.darkest,
     margin: 0,
     fontFamily: typography.fontFamily.heading,
+  },
+  unreadLabel: {
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.accent.main,
+    background: `${colors.accent.main}15`,
+    padding: '0.25rem 0.75rem',
+    borderRadius: borderRadius.full,
   },
   conversationList: {
     overflowY: 'auto',
@@ -283,6 +359,23 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+  },
+  footer: {
+    borderTop: `1px solid ${colors.neutral.light}`,
+    padding: '1rem',
+  },
+  viewAllBtn: {
+    width: '100%',
+    padding: '0.75rem',
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    border: 'none',
+    borderRadius: borderRadius.md,
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.sm,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    textAlign: 'center',
   },
 };
 

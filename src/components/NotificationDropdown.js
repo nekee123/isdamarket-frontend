@@ -41,8 +41,14 @@ const NotificationDropdown = ({ userType, userId }) => {
       const res = await fetch(endpoint);
       if (res.ok) {
         const data = await res.json();
-        setNotifications(data);
-        setUnreadCount(data.filter(n => !n.read).length);
+        // Filter out message notifications - they should appear in Messages dropdown instead
+        const nonMessageNotifications = data.filter(n => 
+          n.type !== 'new_message' && 
+          n.type !== 'message_received' &&
+          !n.message?.toLowerCase().includes('new message')
+        );
+        setNotifications(nonMessageNotifications);
+        setUnreadCount(nonMessageNotifications.filter(n => !n.read).length);
       }
     } catch (err) {
       console.error('Error fetching notifications:', err);

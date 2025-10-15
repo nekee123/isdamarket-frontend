@@ -14,6 +14,7 @@ import SellerOrders from "./pages/SellerOrders";
 import SellerSettings from "./pages/SellerSettings";
 import ViewProduct from "./pages/ViewProduct";
 import ViewProfile from "./pages/ViewProfile";
+import Messages from "./pages/Messages";
 
 function App() {
   return (
@@ -58,6 +59,14 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/buyer-dashboard/messages" 
+            element={
+              <ProtectedRoute userType="buyer">
+                <Messages userType="buyer" />
+              </ProtectedRoute>
+            } 
+          />
 
           {/* 🐟 Seller Dashboard & Sub-pages */}
           <Route 
@@ -89,6 +98,14 @@ function App() {
             element={
               <ProtectedRoute userType="seller">
                 <SellerSettings />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/seller-dashboard/messages" 
+            element={
+              <ProtectedRoute userType="seller">
+                <Messages userType="seller" />
               </ProtectedRoute>
             } 
           />

@@ -6,6 +6,7 @@ import NotificationDropdown from './NotificationDropdown';
 import MessageHistoryDropdown from './MessageHistoryDropdown';
 import MessageModal from './MessageModal';
 import { colors, gradients, shadows, borderRadius, typography } from '../styles/theme';
+import './Navbar.css';
 
 const Navbar = ({ userType, showSearch = false, onSearch }) => {
   const navigate = useNavigate();
@@ -53,9 +54,9 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
           </div>
         </Link>
 
-        {/* Search Bar - Centered and Prominent */}
+        {/* Search Bar - Desktop Only */}
         {showSearch && auth.isAuthenticated && (
-          <form onSubmit={handleSearch} style={styles.searchForm}>
+          <form onSubmit={handleSearch} style={styles.searchForm} className="desktop-search">
             <div style={styles.searchWrapper}>
               <FiSearch style={styles.searchIcon} size={20} />
               <input
@@ -69,8 +70,8 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
           </form>
         )}
 
-        {/* Right Side Navigation */}
-        <div style={styles.navRight}>
+        {/* Right Side Navigation - Desktop */}
+        <div style={styles.navRight} className="desktop-nav">
           {auth.isAuthenticated ? (
             <>
               <MessageHistoryDropdown
@@ -100,10 +101,60 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button style={styles.mobileMenuBtn} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+        <button style={styles.mobileMenuBtn} className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </button>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div style={styles.mobileMenu} className="mobile-menu">
+          {/* Mobile Search */}
+          {showSearch && auth.isAuthenticated && (
+            <form onSubmit={handleSearch} style={styles.mobileSearchForm}>
+              <div style={styles.searchWrapper}>
+                <FiSearch style={styles.searchIcon} size={20} />
+                <input
+                  type="text"
+                  placeholder="Search fresh seafood, sellers..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={styles.searchInput}
+                />
+              </div>
+            </form>
+          )}
+
+          {/* Mobile Navigation Items */}
+          {auth.isAuthenticated ? (
+            <div style={styles.mobileNavItems}>
+              <div style={styles.mobileUserInfo}>
+                <FiUser size={20} />
+                <span>{auth.name}</span>
+              </div>
+              <div style={styles.mobileDivider}></div>
+              <MessageHistoryDropdown
+                userType={userType}
+                userId={auth.uid}
+                onOpenChat={handleOpenChat}
+              />
+              <NotificationDropdown 
+                userType={userType} 
+                userId={auth.uid}
+              />
+              <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} style={styles.mobileLogoutBtn}>
+                <FiLogOut size={20} />
+                <span>Logout</span>
+              </button>
+            </div>
+          ) : (
+            <div style={styles.mobileAuthLinks}>
+              <Link to="/buyer-login" style={styles.mobileLinkSecondary} onClick={() => setMobileMenuOpen(false)}>Shop Now</Link>
+              <Link to="/seller-login" style={styles.mobileLinkPrimary} onClick={() => setMobileMenuOpen(false)}>Sell Fish</Link>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Message Modal */}
       {auth.isAuthenticated && (
@@ -264,6 +315,80 @@ const styles = {
     color: colors.primary.main,
     cursor: 'pointer',
     padding: '0.5rem',
+  },
+  mobileMenu: {
+    display: 'none',
+    background: colors.neutral.white,
+    borderTop: `1px solid ${colors.neutral.light}`,
+    padding: '1rem',
+    boxShadow: shadows.md,
+  },
+  mobileSearchForm: {
+    marginBottom: '1rem',
+  },
+  mobileNavItems: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+  mobileUserInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '1rem',
+    background: colors.neutral.lightest,
+    borderRadius: borderRadius.md,
+    color: colors.neutral.darker,
+    fontWeight: typography.fontWeight.medium,
+    fontSize: typography.fontSize.base,
+  },
+  mobileDivider: {
+    height: '1px',
+    background: colors.neutral.light,
+    margin: '0.5rem 0',
+  },
+  mobileLogoutBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.75rem',
+    width: '100%',
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    border: 'none',
+    padding: '1rem',
+    borderRadius: borderRadius.md,
+    cursor: 'pointer',
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.base,
+    boxShadow: shadows.sm,
+  },
+  mobileAuthLinks: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+  mobileLinkSecondary: {
+    color: colors.primary.main,
+    textDecoration: 'none',
+    padding: '1rem',
+    borderRadius: borderRadius.md,
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.base,
+    border: `2px solid ${colors.primary.main}`,
+    textAlign: 'center',
+    background: 'transparent',
+  },
+  mobileLinkPrimary: {
+    color: colors.neutral.white,
+    textDecoration: 'none',
+    padding: '1rem',
+    borderRadius: borderRadius.md,
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.base,
+    background: gradients.ocean,
+    textAlign: 'center',
+    boxShadow: shadows.sm,
   },
 };
 

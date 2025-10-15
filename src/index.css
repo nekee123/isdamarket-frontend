@@ -1,15 +1,23 @@
 * {
   box-sizing: border-box;
+  /* Ensure consistent text rendering across all elements */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html {
+  font-size: 16px; /* Fixed base font size for consistent rem calculations */
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%; /* Prevent font size adjustment on orientation change */
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
+  font-size: 16px; /* Explicit base font size */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -18,6 +26,11 @@ body {
   background: #FFFFFF;
   color: #0F172A;
   overflow-x: hidden;
+  /* Prevent font boosting on mobile */
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 code {
