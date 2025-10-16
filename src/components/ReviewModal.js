@@ -10,17 +10,31 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (rating === 0) {
-      alert('Please select a rating');
+    
+    // Validate rating
+    if (rating === 0 || !rating) {
+      alert('Please select a rating (1-5 stars)');
+      return;
+    }
+    
+    if (rating < 1 || rating > 5) {
+      alert('Rating must be between 1 and 5 stars');
       return;
     }
     
     setIsSubmitting(true);
-    await onSubmit({ rating, comment });
+    try {
+      await onSubmit({ rating, comment: comment.trim() });
+      // Only reset and close if submission was successful
+      setRating(0);
+      setComment('');
+    } catch (error) {
+      console.error('Error in review submission:', error);
+      // Don't close modal on error so user can retry
+      setIsSubmitting(false);
+      return;
+    }
     setIsSubmitting(false);
-    setRating(0);
-    setComment('');
-    onClose();
   };
 
   if (!isOpen) return null;

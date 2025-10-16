@@ -12,6 +12,8 @@ const BASE_URL = process.env.REACT_APP_API_URL;
 
 function SellerProducts() {
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [newProduct, setNewProduct] = useState({ name: "", type: "", price: "", quantity: "", description: "", image: "" });
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,12 +35,31 @@ function SellerProducts() {
       const data = await res.json();
       const myProducts = data.filter(p => p.seller_uid === sellerAuth.uid);
       setProducts(myProducts);
+      setFilteredProducts(myProducts);
     } catch (err) {
       console.error(err);
       showToast("Failed to load products", "error");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    const lowerQuery = query.toLowerCase();
+    
+    if (!query.trim()) {
+      setFilteredProducts(products);
+      return;
+    }
+    
+    const filtered = products.filter(product => 
+      product.name.toLowerCase().includes(lowerQuery) ||
+      product.type.toLowerCase().includes(lowerQuery) ||
+      product.description.toLowerCase().includes(lowerQuery)
+    );
+    
+    setFilteredProducts(filtered);
   };
 
   const handleImageChange = (e) => {
@@ -94,7 +115,9 @@ function SellerProducts() {
       });
       if (res.ok) {
         const product = await res.json();
-        setProducts([...products, product]);
+        const updatedProducts = [...products, product];
+        setProducts(updatedProducts);
+        setFilteredProducts(updatedProducts);
         setNewProduct({ name: "", type: "", price: "", quantity: "", description: "", image: "" });
         setImagePreview(null);
         setShowAddForm(false);
@@ -116,7 +139,9 @@ function SellerProducts() {
 
       if (res.ok) {
         showToast("Product deleted successfully!", "success");
-        setProducts(products.filter(p => p.uid !== productUid));
+        const updatedProducts = products.filter(p => p.uid !== productUid);
+        setProducts(updatedProducts);
+        setFilteredProducts(updatedProducts);
       } else {
         showToast("Failed to delete product", "error");
       }
@@ -139,13 +164,24 @@ function SellerProducts() {
   return (
     <div style={styles.pageWrapper}>
       <ToastContainer />
-      <Navbar userType="seller" showSearch={false} />
+      <Navbar userType="seller" showSearch={true} onSearch={handleSearch} />
       
       <div style={styles.container}>
         <div style={styles.header}>
           <div>
             <h1 style={styles.title}>My Products</h1>
             <p style={styles.subtitle}>Manage your fish market inventory</p>
+            {searchQuery && (
+              <p style={styles.searchInfo}>
+                Showing results for: <strong>"{searchQuery}"</strong>
+                <button 
+                  style={styles.clearSearchBtn}
+                  onClick={() => handleSearch('')}
+                >
+                  Clear
+                </button>
+              </p>
+            )}
           </div>
           <button 
             style={styles.addButton}
@@ -256,15 +292,27 @@ function SellerProducts() {
           </form>
         )}
 
-        {products.length === 0 ? (
+        {filteredProducts.length === 0 && !searchQuery ? (
           <div style={styles.emptyState}>
             <span style={styles.emptyIcon}>🐟</span>
             <p style={styles.emptyText}>No products yet</p>
             <p style={styles.emptySubtext}>Start adding fish products to your inventory</p>
           </div>
+        ) : filteredProducts.length === 0 && searchQuery ? (
+          <div style={styles.emptyState}>
+            <span style={styles.emptyIcon}>🔍</span>
+            <p style={styles.emptyText}>No products found</p>
+            <p style={styles.emptySubtext}>Try a different search term</p>
+            <button 
+              style={styles.clearSearchBtn}
+              onClick={() => handleSearch('')}
+            >
+              Clear Search
+            </button>
+          </div>
         ) : (
           <div style={styles.productsGrid}>
-            {products.map(p => (
+            {filteredProducts.map(p => (
               <div key={p.uid} style={styles.productCard}>
                 <div style={styles.imageContainer}>
                   {p.image ? (
@@ -338,6 +386,26 @@ const styles = {
   subtitle: {
     fontSize: typography.fontSize.base,
     color: colors.neutral.dark,
+  },
+  searchInfo: {
+    fontSize: typography.fontSize.sm,
+    color: colors.neutral.dark,
+    marginTop: '0.75rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    flexWrap: 'wrap',
+  },
+  clearSearchBtn: {
+    padding: '0.375rem 0.875rem',
+    background: colors.neutral.lightest,
+    color: colors.primary.main,
+    border: `1px solid ${colors.primary.main}`,
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
   addButton: {
     display: 'flex',

@@ -59,43 +59,60 @@ function MyOrders() {
   };
 
   const handleSubmitReview = async (reviewData) => {
+    // Validate review data
+    if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
+      showToast("Please provide a rating between 1 and 5 stars", "error");
+      return;
+    }
+
+    if (!selectedOrder || !selectedOrder.seller_uid) {
+      showToast("Invalid order selected", "error");
+      return;
+    }
+
     try {
-      console.log('Submitting review:', {
+      const reviewPayload = {
         seller_uid: selectedOrder.seller_uid,
         buyer_uid: buyerAuth.uid,
         buyer_name: buyerAuth.name,
         order_uid: selectedOrder.uid,
-        rating: reviewData.rating,
-        comment: reviewData.comment,
-      });
+        rating: parseInt(reviewData.rating),
+        comment: reviewData.comment?.trim() || "",
+      };
+
+      console.log('Submitting review:', reviewPayload);
 
       const res = await fetch(`${BASE_URL}/reviews/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          seller_uid: selectedOrder.seller_uid,
-          buyer_uid: buyerAuth.uid,
-          buyer_name: buyerAuth.name,
-          order_uid: selectedOrder.uid,
-          rating: reviewData.rating,
-          comment: reviewData.comment,
-        }),
+        body: JSON.stringify(reviewPayload),
       });
 
       console.log('Review response status:', res.status);
-      const responseData = await res.json().catch(() => null);
+      
+      let responseData = null;
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await res.json();
+      } else {
+        const text = await res.text();
+        console.log('Non-JSON response:', text);
+      }
+      
       console.log('Review response data:', responseData);
 
       if (!res.ok) {
-        const errorMsg = responseData?.message || responseData?.error || 'Failed to submit review';
+        const errorMsg = responseData?.message || responseData?.error || responseData?.detail || `Server error: ${res.status}`;
         throw new Error(errorMsg);
       }
 
-      showToast("Review submitted successfully!", "success");
+      showToast("Review submitted successfully! Thank you for your feedback.", "success");
+      setReviewModalOpen(false);
+      setSelectedOrder(null);
       fetchOrders(); // Refresh to update review status
     } catch (err) {
       console.error('Review submission error:', err);
-      showToast(err.message || "Failed to submit review", "error");
+      showToast(err.message || "Failed to submit review. Please try again.", "error");
     }
   };
 

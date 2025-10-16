@@ -14,6 +14,7 @@ import SellerOrders from "./pages/SellerOrders";
 import SellerSettings from "./pages/SellerSettings";
 import ViewProduct from "./pages/ViewProduct";
 import ViewProfile from "./pages/ViewProfile";
+import SellerProfile from "./pages/SellerProfile";
 
 function App() {
   return (
@@ -96,6 +97,7 @@ function App() {
           {/* 👁️ View Pages */}
           <Route path="/product/:id" element={<ViewProduct />} />
           <Route path="/profile/:id" element={<ViewProfile />} />
+          <Route path="/seller/:sellerId" element={<SellerProfile />} />
         </Routes>
       </AuthProvider>
     </Router>

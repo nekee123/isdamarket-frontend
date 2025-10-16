@@ -17,6 +17,7 @@ function BrowseFish() {
   const [sellerGroups, setSellerGroups] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [purchaseLoading, setPurchaseLoading] = useState(null);
   const { buyerAuth } = useAuth();
   const { showToast, ToastContainer } = useToast();
 
@@ -79,10 +80,18 @@ function BrowseFish() {
   const handleBuyNow = async (product) => {
     if (!buyerAuth.isAuthenticated) {
       showToast("Please log in as a buyer first.", "warning");
+      navigate('/buyer-login');
+      return;
+    }
+
+    if (product.quantity <= 0) {
+      showToast('This product is out of stock', 'error');
       return;
     }
 
     try {
+      setPurchaseLoading(product.uid);
+      
       const res = await fetch(`${BASE_URL}/orders/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,13 +107,18 @@ function BrowseFish() {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create order");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to create order");
+      }
 
       const data = await res.json();
       showToast(`Order placed for ${data.fish_product_name}!`, "success");
     } catch (err) {
       console.error(err);
-      showToast("Failed to place order. Please try again.", "error");
+      showToast(err.message || "Failed to place order. Please try again.", "error");
+    } finally {
+      setPurchaseLoading(null);
     }
   };
 
@@ -206,10 +220,15 @@ function BrowseFish() {
                           </div>
                           <button 
                             onClick={() => handleBuyNow(p)}
-                            style={styles.buyBtn}
+                            style={{
+                              ...styles.buyBtn,
+                              opacity: purchaseLoading === p.uid || p.quantity <= 0 ? 0.6 : 1,
+                              cursor: purchaseLoading === p.uid || p.quantity <= 0 ? 'not-allowed' : 'pointer',
+                            }}
+                            disabled={purchaseLoading === p.uid || p.quantity <= 0}
                           >
                             <FiShoppingCart size={18} />
-                            <span>Buy Now</span>
+                            <span>{purchaseLoading === p.uid ? 'Buying...' : p.quantity <= 0 ? 'Out of Stock' : 'Buy Now'}</span>
                           </button>
                         </div>
                       </div>

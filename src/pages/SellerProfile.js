@@ -23,6 +23,7 @@ function SellerProfile() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [purchaseLoading, setPurchaseLoading] = useState(null);
 
   useEffect(() => {
     fetchSellerData();
@@ -62,7 +63,14 @@ function SellerProfile() {
       return;
     }
 
+    if (product.quantity <= 0) {
+      showToast('This product is out of stock', 'error');
+      return;
+    }
+
     try {
+      setPurchaseLoading(product.uid);
+      
       const res = await fetch(`${BASE_URL}/orders/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,13 +86,21 @@ function SellerProfile() {
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to create order');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to create order');
+      }
 
       const data = await res.json();
       showToast(`Order placed for ${data.fish_product_name}!`, 'success');
+      
+      // Refresh seller data to update stock
+      fetchSellerData();
     } catch (err) {
       console.error(err);
-      showToast('Failed to place order. Please try again.', 'error');
+      showToast(err.message || 'Failed to place order. Please try again.', 'error');
+    } finally {
+      setPurchaseLoading(null);
     }
   };
 
@@ -239,11 +255,16 @@ function SellerProfile() {
                         <div style={styles.stock}>Stock: {product.quantity}</div>
                       </div>
                       <button 
-                        style={styles.buyBtn}
+                        style={{
+                          ...styles.buyBtn,
+                          opacity: purchaseLoading === product.uid || product.quantity <= 0 ? 0.6 : 1,
+                          cursor: purchaseLoading === product.uid || product.quantity <= 0 ? 'not-allowed' : 'pointer',
+                        }}
                         onClick={() => handleBuyNow(product)}
+                        disabled={purchaseLoading === product.uid || product.quantity <= 0}
                       >
                         <FiShoppingCart size={16} />
-                        <span>Buy</span>
+                        <span>{purchaseLoading === product.uid ? 'Buying...' : product.quantity <= 0 ? 'Out of Stock' : 'Buy'}</span>
                       </button>
                     </div>
                   </div>
@@ -258,7 +279,11 @@ function SellerProfile() {
           <h2 style={styles.sectionTitle}>Customer Reviews ({reviews.length})</h2>
           {reviews.length === 0 ? (
             <div style={styles.emptySection}>
-              <p style={styles.emptyText}>No reviews yet</p>
+              <div style={styles.emptyReviewIcon}>⭐</div>
+              <p style={styles.emptyText}>No reviews yet — be the first to leave feedback!</p>
+              <p style={styles.emptySubtext}>
+                Purchase from this seller and share your experience with the community.
+              </p>
             </div>
           ) : (
             <div style={styles.reviewsGrid}>
@@ -529,7 +554,18 @@ const styles = {
   },
   emptyText: {
     fontSize: typography.fontSize.base,
+    color: colors.neutral.darkest,
+    fontWeight: typography.fontWeight.medium,
+    marginBottom: '0.5rem',
+  },
+  emptySubtext: {
+    fontSize: typography.fontSize.sm,
     color: colors.neutral.medium,
+    lineHeight: '1.5',
+  },
+  emptyReviewIcon: {
+    fontSize: '3rem',
+    marginBottom: '1rem',
   },
 };
 
