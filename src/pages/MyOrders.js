@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ReviewModal from "../components/ReviewModal";
 import { useToast } from "../components/Toast";
-import { FiPackage, FiTruck, FiCheckCircle, FiXCircle, FiStar, FiMapPin, FiMessageCircle } from "react-icons/fi";
+import { FiPackage, FiTruck, FiCheckCircle, FiXCircle, FiStar, FiMapPin } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -205,13 +205,6 @@ function MyOrders() {
                 </div>
 
                 <div style={styles.orderActions}>
-                  <button 
-                    style={styles.messageBtn}
-                    onClick={() => navigate(`/buyer-dashboard/messages?recipient=${order.seller_uid}&name=${encodeURIComponent(order.seller_name)}`)}
-                  >
-                    <FiMessageCircle size={16} />
-                    <span>Message Seller</span>
-                  </button>
                   {order.status === 'pending' && (
                     <button 
                       style={styles.cancelBtn}

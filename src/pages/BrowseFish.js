@@ -4,9 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
-import MessageModal from "../components/MessageModal";
 import { useToast } from "../components/Toast";
-import { FiShoppingCart, FiMapPin, FiPackage, FiStar, FiMessageCircle, FiUser } from "react-icons/fi";
+import { FiShoppingCart, FiMapPin, FiPackage, FiStar, FiUser } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -18,7 +17,6 @@ function BrowseFish() {
   const [sellerGroups, setSellerGroups] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [messageModal, setMessageModal] = useState({ isOpen: false, sellerId: null, sellerName: '' });
   const { buyerAuth } = useAuth();
   const { showToast, ToastContainer } = useToast();
 
@@ -183,19 +181,6 @@ function BrowseFish() {
                       <FiUser size={18} />
                       <span>View Profile</span>
                     </button>
-                    {buyerAuth.isAuthenticated && (
-                      <button
-                        style={styles.messageBtn}
-                        onClick={() => setMessageModal({
-                          isOpen: true,
-                          sellerId: seller.seller_uid,
-                          sellerName: seller.seller_name
-                        })}
-                      >
-                        <FiMessageCircle size={18} />
-                        <span>Message</span>
-                      </button>
-                    )}
                   </div>
                 </div>
                 
@@ -236,15 +221,6 @@ function BrowseFish() {
           </>
         )}
       </div>
-
-      <MessageModal
-        isOpen={messageModal.isOpen}
-        onClose={() => setMessageModal({ isOpen: false, sellerId: null, sellerName: '' })}
-        userType="buyer"
-        userId={buyerAuth.uid}
-        recipientId={messageModal.sellerId}
-        recipientName={messageModal.sellerName}
-      />
 
       <Footer />
     </div>

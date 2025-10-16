@@ -3,8 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiUser, FiLogOut, FiSearch, FiMenu, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
-import MessageHistoryDropdown from './MessageHistoryDropdown';
-import MessageModal from './MessageModal';
 import { colors, gradients, shadows, borderRadius, typography } from '../styles/theme';
 import './Navbar.css';
 
@@ -13,7 +11,6 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
   const { buyerAuth, sellerAuth, logoutBuyer, logoutSeller } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [messageModal, setMessageModal] = useState({ isOpen: false, recipientId: null, recipientName: '' });
 
   const handleLogout = () => {
     if (userType === 'buyer') {
@@ -34,14 +31,6 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
 
   const auth = userType === 'buyer' ? buyerAuth : sellerAuth;
   const dashboardPath = userType === 'buyer' ? '/buyer-dashboard' : '/seller-dashboard';
-
-  const handleOpenChat = ({ recipientId, recipientName }) => {
-    setMessageModal({
-      isOpen: true,
-      recipientId,
-      recipientName,
-    });
-  };
 
   return (
     <nav style={styles.navbar}>
@@ -74,11 +63,6 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
         <div style={styles.navRight} className="desktop-nav">
           {auth.isAuthenticated ? (
             <>
-              <MessageHistoryDropdown
-                userType={userType}
-                userId={auth.uid}
-                onOpenChat={handleOpenChat}
-              />
               <NotificationDropdown 
                 userType={userType} 
                 userId={auth.uid}
@@ -133,11 +117,6 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
                 <span>{auth.name}</span>
               </div>
               <div style={styles.mobileDivider}></div>
-              <MessageHistoryDropdown
-                userType={userType}
-                userId={auth.uid}
-                onOpenChat={handleOpenChat}
-              />
               <NotificationDropdown 
                 userType={userType} 
                 userId={auth.uid}
@@ -154,18 +133,6 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
             </div>
           )}
         </div>
-      )}
-
-      {/* Message Modal */}
-      {auth.isAuthenticated && (
-        <MessageModal
-          isOpen={messageModal.isOpen}
-          onClose={() => setMessageModal({ isOpen: false, recipientId: null, recipientName: '' })}
-          userType={userType}
-          userId={auth.uid}
-          recipientId={messageModal.recipientId}
-          recipientName={messageModal.recipientName}
-        />
       )}
     </nav>
   );
