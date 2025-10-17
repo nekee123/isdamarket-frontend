@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import BackButton from "../components/BackButton";
+import { FiMapPin, FiMail, FiPhone, FiUser } from "react-icons/fi";
+import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -59,28 +61,74 @@ function ViewProfile() {
     <div style={styles.container}>
       <BackButton />
       <div style={styles.card}>
-        {user.profile_picture ? (
-          <img 
-            src={user.profile_picture} 
-            alt={user.name}
-            style={styles.profileImage}
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
-          />
-        ) : null}
-        <div style={{
-          ...styles.avatar,
-          display: user.profile_picture ? 'none' : 'flex'
-        }}>
-          {user.name ? user.name.charAt(0).toUpperCase() : "?"}
+        {/* Profile Picture / Avatar */}
+        <div style={styles.avatarSection}>
+          {user.profile_picture ? (
+            <img 
+              src={user.profile_picture} 
+              alt={user.name}
+              style={styles.profileImage}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div style={{
+            ...styles.avatar,
+            display: user.profile_picture ? 'none' : 'flex'
+          }}>
+            {user.name ? user.name.charAt(0).toUpperCase() : "?"}
+          </div>
         </div>
-        <h2 style={styles.name}>{user.name}</h2>
-        <p style={styles.userType}>{userType}</p>
-        <p><strong>Location:</strong> {user.location || "N/A"}</p>
-        <p><strong>Email:</strong> {user.email || "N/A"}</p>
-        <p><strong>Contact:</strong> {user.contact_number || "N/A"}</p>
+
+        {/* User Info */}
+        <div style={styles.userInfo}>
+          <h2 style={styles.name}>{user.name}</h2>
+          <div style={styles.badge}>
+            <FiUser size={14} />
+            <span>{userType}</span>
+          </div>
+        </div>
+
+        {/* Contact Details */}
+        <div style={styles.detailsSection}>
+          {user.location && (
+            <div style={styles.detailItem}>
+              <div style={styles.detailIcon}>
+                <FiMapPin size={18} />
+              </div>
+              <div style={styles.detailContent}>
+                <div style={styles.detailLabel}>Location</div>
+                <div style={styles.detailValue}>{user.location}</div>
+              </div>
+            </div>
+          )}
+
+          {user.email && (
+            <div style={styles.detailItem}>
+              <div style={styles.detailIcon}>
+                <FiMail size={18} />
+              </div>
+              <div style={styles.detailContent}>
+                <div style={styles.detailLabel}>Email</div>
+                <div style={styles.detailValue}>{user.email}</div>
+              </div>
+            </div>
+          )}
+
+          {user.contact_number && (
+            <div style={styles.detailItem}>
+              <div style={styles.detailIcon}>
+                <FiPhone size={18} />
+              </div>
+              <div style={styles.detailContent}>
+                <div style={styles.detailLabel}>Contact Number</div>
+                <div style={styles.detailValue}>{user.contact_number}</div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -88,49 +136,139 @@ function ViewProfile() {
 
 const styles = {
   container: {
-    padding: "20px",
-    textAlign: "center",
-    paddingTop: "70px",
+    minHeight: '100vh',
+    padding: '1rem',
+    paddingTop: '70px',
+    background: colors.neutral.lightest,
+    fontFamily: typography.fontFamily.primary,
   },
   card: {
-    background: "#fff",
-    padding: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-    maxWidth: "400px",
-    margin: "0 auto",
+    background: colors.neutral.white,
+    padding: '2rem',
+    borderRadius: borderRadius.xl,
+    boxShadow: shadows.card,
+    maxWidth: '600px',
+    margin: '0 auto',
+    border: `1px solid ${colors.neutral.light}`,
+  },
+  avatarSection: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '1.5rem',
   },
   avatar: {
-    width: "100px",
-    height: "100px",
-    borderRadius: "50%",
-    backgroundColor: "#0077b6",
-    color: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "48px",
-    fontWeight: "bold",
-    margin: "0 auto 15px",
-  },
-  name: {
-    color: "#0077b6",
-    marginBottom: "5px",
-  },
-  userType: {
-    color: "#666",
-    fontSize: "14px",
-    fontStyle: "italic",
-    marginTop: "0",
-    marginBottom: "15px",
+    width: '120px',
+    height: '120px',
+    borderRadius: borderRadius.full,
+    background: gradients.oceanLight,
+    color: colors.primary.dark,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '3.5rem',
+    fontWeight: typography.fontWeight.bold,
+    fontFamily: typography.fontFamily.heading,
+    border: `4px solid ${colors.neutral.white}`,
+    boxShadow: shadows.md,
   },
   profileImage: {
-    width: "100px",
-    height: "100px",
-    borderRadius: "50%",
-    objectFit: "cover",
-    margin: "0 auto 15px",
-    display: "block",
+    width: '120px',
+    height: '120px',
+    borderRadius: borderRadius.full,
+    objectFit: 'cover',
+    border: `4px solid ${colors.neutral.white}`,
+    boxShadow: shadows.md,
+  },
+  userInfo: {
+    textAlign: 'center',
+    marginBottom: '2rem',
+    paddingBottom: '1.5rem',
+    borderBottom: `1px solid ${colors.neutral.light}`,
+  },
+  name: {
+    fontSize: typography.fontSize['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.neutral.darkest,
+    marginBottom: '0.75rem',
+    fontFamily: typography.fontFamily.heading,
+  },
+  badge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.5rem 1rem',
+    background: gradients.oceanLight,
+    color: colors.primary.dark,
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+  },
+  detailsSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+  detailItem: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '1rem',
+    padding: '1rem',
+    background: colors.neutral.lightest,
+    borderRadius: borderRadius.lg,
+    transition: 'all 0.2s ease',
+  },
+  detailIcon: {
+    width: '40px',
+    height: '40px',
+    borderRadius: borderRadius.lg,
+    background: gradients.oceanLight,
+    color: colors.primary.dark,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  detailContent: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.25rem',
+  },
+  detailLabel: {
+    fontSize: typography.fontSize.xs,
+    color: colors.neutral.medium,
+    fontWeight: typography.fontWeight.medium,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  },
+  detailValue: {
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.darkest,
+    fontWeight: typography.fontWeight.medium,
+    wordBreak: 'break-word',
+  },
+
+  // Responsive styles
+  '@media (max-width: 768px)': {
+    container: {
+      padding: '0.75rem',
+      paddingTop: '60px',
+    },
+    card: {
+      padding: '1.5rem',
+    },
+    avatar: {
+      width: '100px',
+      height: '100px',
+      fontSize: '3rem',
+    },
+    profileImage: {
+      width: '100px',
+      height: '100px',
+    },
+    name: {
+      fontSize: typography.fontSize.xl,
+    },
   },
 };
 
