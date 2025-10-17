@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 const SearchBar = ({ defaultType, userType }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState(defaultType); // "products" or "sellers"/"buyers"
@@ -17,7 +19,7 @@ const SearchBar = ({ defaultType, userType }) => {
     setError(null);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/search?query=${query}&search_type=${searchType}`
+        `${BASE_URL}/search?query=${query}&search_type=${searchType}`
       );
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);

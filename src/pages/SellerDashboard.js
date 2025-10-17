@@ -18,7 +18,7 @@ function SellerDashboard() {
           <div style={styles.welcomeSection}>
             <h1 style={styles.title}>Welcome back, {sellerAuth.name}! 🐠</h1>
             <p style={styles.subtitle}>
-              Manage your seafood business with ease. Reach more customers and grow your sales today.
+              Manage your fish business with ease. Reach more customers and grow your sales today.
             </p>
           </div>
           
@@ -32,13 +32,13 @@ function SellerDashboard() {
                 <div style={styles.statHint}>Orders awaiting action</div>
               </div>
             </div>
-            {/* Shows total number of seafood products you have listed for sale */}
+            {/* Shows total number of fish products you have listed for sale */}
             <div style={styles.statCard}>
               <div style={styles.statIcon}>🐟</div>
               <div style={styles.statContent}>
                 <div style={styles.statNumber}>0</div>
                 <div style={styles.statLabel}>Listed Products</div>
-                <div style={styles.statHint}>Active seafood listings</div>
+                <div style={styles.statHint}>Active fish listings</div>
               </div>
             </div>
             {/* Shows total earnings from all completed orders */}
@@ -64,7 +64,7 @@ function SellerDashboard() {
               <FiBox size={40} />
             </div>
             <h3 style={styles.cardTitle}>My Products</h3>
-            <p style={styles.cardText}>Add new products, update inventory, and manage your seafood listings</p>
+            <p style={styles.cardText}>Add new products, update inventory, and manage your fish listings</p>
             <button style={styles.cardBtn}>Manage Products →</button>
           </div>
 

@@ -139,7 +139,7 @@ function BrowseFish() {
       
       <div style={styles.container}>
         <div style={styles.header}>
-          <h1 style={styles.title}>Fresh Seafood Marketplace</h1>
+          <h1 style={styles.title}>Fresh Fish Marketplace</h1>
           <p style={styles.subtitle}>Discover the finest catches from local fishermen across the Philippines</p>
           {searchQuery && (
             <p style={styles.searchInfo}>

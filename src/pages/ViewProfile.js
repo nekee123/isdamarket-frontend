@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import BackButton from "../components/BackButton";
 
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 function ViewProfile() {
   const { id } = useParams(); // user id from URL
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ function ViewProfile() {
     const fetchProfile = async () => {
       try {
         // Try seller endpoint
-        let res = await fetch(`http://127.0.0.1:8000/sellers/${id}`);
+        let res = await fetch(`${BASE_URL}/sellers/${id}`);
         if (res.ok) {
           const data = await res.json();
           setUser(data);
@@ -22,7 +24,7 @@ function ViewProfile() {
         }
 
         // Try buyer endpoint
-        res = await fetch(`http://127.0.0.1:8000/buyers/${id}`);
+        res = await fetch(`${BASE_URL}/buyers/${id}`);
         if (res.ok) {
           const data = await res.json();
           setUser(data);

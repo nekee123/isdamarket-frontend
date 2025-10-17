@@ -174,14 +174,14 @@ function MyOrders() {
       <div style={styles.container}>
         <div style={styles.header}>
           <h1 style={styles.title}>My Orders</h1>
-          <p style={styles.subtitle}>Track and manage your seafood orders</p>
+          <p style={styles.subtitle}>Track and manage your fish orders</p>
         </div>
 
         {orders.length === 0 ? (
           <div style={styles.emptyState}>
             <span style={styles.emptyIcon}>📦</span>
             <p style={styles.emptyText}>No orders yet</p>
-            <p style={styles.emptySubtext}>Start shopping for fresh seafood!</p>
+            <p style={styles.emptySubtext}>Start shopping for fresh fish!</p>
             <button style={styles.browseBtn} onClick={() => navigate('/buyer-dashboard/browse')}>
               Browse Products
             </button>

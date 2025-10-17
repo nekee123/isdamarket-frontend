@@ -50,7 +50,7 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
               <FiSearch style={styles.searchIcon} size={20} />
               <input
                 type="text"
-                placeholder="Search fresh seafood, sellers..."
+                placeholder="Search fresh fish, sellers..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={styles.searchInput}
@@ -100,7 +100,7 @@ const Navbar = ({ userType, showSearch = false, onSearch }) => {
                 <FiSearch style={styles.searchIcon} size={20} />
                 <input
                   type="text"
-                  placeholder="Search fresh seafood, sellers..."
+                  placeholder="Search fresh fish, sellers..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={styles.searchInput}

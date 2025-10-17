@@ -43,7 +43,7 @@ function HomePage() {
               <span>Trusted by 10,000+ customers</span>
             </div>
             <h1 style={styles.heroTitle}>
-              Fresh Seafood,<br />
+              Fresh Fish,<br />
               <span style={styles.heroTitleGradient}>Delivered Daily</span>
             </h1>
             <p style={styles.heroSubtitle}>
@@ -112,7 +112,7 @@ function HomePage() {
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>Why Choose IsdaMarket?</h2>
             <p style={styles.sectionSubtitle}>
-              The most trusted seafood marketplace in the Philippines
+              The most trusted fish marketplace in the Philippines
             </p>
           </div>
           <div style={styles.featureGrid}>
@@ -131,7 +131,7 @@ function HomePage() {
               </div>
               <h3 style={styles.featureTitle}>Fast Delivery</h3>
               <p style={styles.featureText}>
-                Same-day delivery available. We ensure your seafood arrives fresh and ready to cook.
+                Same-day delivery available. We ensure your fish arrives fresh and ready to cook.
               </p>
             </div>
             <div style={styles.featureCard}>
@@ -162,7 +162,7 @@ function HomePage() {
           <div style={styles.ctaContent}>
             <h2 style={styles.ctaTitle}>Ready to Experience Fresh?</h2>
             <p style={styles.ctaText}>
-              Join thousands of satisfied customers enjoying the freshest seafood delivered daily.
+              Join thousands of satisfied customers enjoying the freshest fish delivered daily.
             </p>
             <div style={styles.ctaButtons}>
               <Link to="/buyer-login" style={styles.ctaBtnPrimary}>

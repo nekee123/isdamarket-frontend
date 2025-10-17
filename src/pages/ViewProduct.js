@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import BackButton from "../components/BackButton";
 
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 function ViewProduct() {
   const { id } = useParams(); // product id from URL
   const navigate = useNavigate();
@@ -9,7 +11,7 @@ function ViewProduct() {
 
   useEffect(() => {
     // Fetch product data from backend using the id
-    fetch(`http://127.0.0.1:8000/products/${id}`)
+    fetch(`${BASE_URL}/products/${id}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -34,7 +36,7 @@ function ViewProduct() {
     }
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/orders/`, {
+      const res = await fetch(`${BASE_URL}/orders/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

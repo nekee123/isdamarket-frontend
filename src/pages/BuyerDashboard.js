@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import MobileHeader from "../components/MobileHeader";
+import MobileNav from "../components/MobileNav";
 import { FiShoppingBag, FiPackage, FiSettings, FiTrendingUp } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
@@ -16,14 +16,20 @@ function BuyerDashboard() {
 
   return (
     <div style={styles.pageWrapper}>
-      <Navbar userType="buyer" showSearch={true} onSearch={handleSearch} />
+      <MobileHeader 
+        title="Home" 
+        showSearch={true} 
+        onSearch={handleSearch}
+        userType="buyer"
+        userId={buyerAuth.uid}
+      />
       
       <div style={styles.container}>
         <div style={styles.hero}>
           <div style={styles.welcomeSection}>
             <h1 style={styles.title}>Welcome back, {buyerAuth.name}! 👋</h1>
             <p style={styles.subtitle}>
-              Discover fresh seafood from local fishermen. Your next delicious meal is just a click away.
+              Discover fresh fish from local fishermen. Your next delicious meal is just a click away.
             </p>
           </div>
           
@@ -60,34 +66,37 @@ function BuyerDashboard() {
         <div style={styles.cards}>
           <div style={styles.card} onClick={() => navigate("/buyer-dashboard/browse")}>
             <div style={styles.cardIcon}>
-              <FiShoppingBag size={40} />
+              <FiShoppingBag size={28} />
             </div>
-            <h3 style={styles.cardTitle}>Browse Seafood</h3>
-            <p style={styles.cardText}>Explore fresh catches from verified local fishermen across the Philippines</p>
-            <button style={styles.cardBtn}>Start Shopping →</button>
+            <div style={styles.cardContent}>
+              <h3 style={styles.cardTitle}>Browse Fish</h3>
+              <p style={styles.cardText}>Explore fresh catches from local fishermen</p>
+            </div>
           </div>
 
           <div style={styles.card} onClick={() => navigate("/buyer-dashboard/orders")}>
             <div style={styles.cardIcon}>
-              <FiPackage size={40} />
+              <FiPackage size={28} />
             </div>
-            <h3 style={styles.cardTitle}>My Orders</h3>
-            <p style={styles.cardText}>Track your orders, view history, and manage deliveries</p>
-            <button style={styles.cardBtn}>View Orders →</button>
+            <div style={styles.cardContent}>
+              <h3 style={styles.cardTitle}>My Orders</h3>
+              <p style={styles.cardText}>Track your orders and deliveries</p>
+            </div>
           </div>
 
           <div style={styles.card} onClick={() => navigate("/buyer-dashboard/settings")}>
             <div style={styles.cardIcon}>
-              <FiSettings size={40} />
+              <FiSettings size={28} />
             </div>
-            <h3 style={styles.cardTitle}>Account Settings</h3>
-            <p style={styles.cardText}>Update your profile, preferences, and delivery addresses</p>
-            <button style={styles.cardBtn}>Manage Account →</button>
+            <div style={styles.cardContent}>
+              <h3 style={styles.cardTitle}>Account Settings</h3>
+              <p style={styles.cardText}>Update your profile and preferences</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <Footer />
+      <MobileNav userType="buyer" />
     </div>
   );
 }
@@ -102,48 +111,49 @@ const styles = {
   },
   container: {
     flex: 1,
-    maxWidth: '1400px',
-    margin: '0 auto',
-    padding: '3rem 2rem',
+    padding: 'calc(4.5rem + env(safe-area-inset-top)) 1rem calc(5rem + env(safe-area-inset-bottom))',
     width: '100%',
+    maxWidth: '100%',
   },
   hero: {
-    marginBottom: '4rem',
-  },
-  welcomeSection: {
     marginBottom: '2rem',
   },
+  welcomeSection: {
+    marginBottom: '1.5rem',
+  },
   title: {
-    fontSize: 'clamp(2rem, 4vw, 3rem)',
+    fontSize: typography.fontSize['2xl'],
     fontWeight: typography.fontWeight.bold,
     color: colors.neutral.darkest,
-    marginBottom: '1rem',
+    marginBottom: '0.5rem',
     fontFamily: typography.fontFamily.heading,
   },
   subtitle: {
-    fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+    fontSize: typography.fontSize.sm,
     color: colors.neutral.dark,
     margin: 0,
-    maxWidth: '700px',
+    lineHeight: '1.5',
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '1.5rem',
-    marginTop: '2rem',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '0.75rem',
+    marginTop: '1rem',
   },
   statCard: {
     background: colors.neutral.white,
-    padding: '1.5rem',
+    padding: '1rem',
     borderRadius: borderRadius.lg,
-    boxShadow: shadows.card,
+    boxShadow: shadows.sm,
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: '1rem',
+    gap: '0.5rem',
     border: `1px solid ${colors.neutral.light}`,
+    textAlign: 'center',
   },
   statIcon: {
-    fontSize: '2.5rem',
+    fontSize: '1.75rem',
   },
   statContent: {
     display: 'flex',
@@ -151,23 +161,23 @@ const styles = {
     gap: '0.25rem',
   },
   statNumber: {
-    fontSize: typography.fontSize['2xl'],
+    fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.bold,
     color: colors.primary.main,
     fontFamily: typography.fontFamily.heading,
   },
   statLabel: {
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.fontSize.xs,
     color: colors.neutral.dark,
   },
   sectionHeader: {
-    marginBottom: '2rem',
+    marginBottom: '1rem',
   },
   sectionTitle: {
-    fontSize: typography.fontSize['2xl'],
+    fontSize: typography.fontSize.xl,
     fontWeight: typography.fontWeight.bold,
     color: colors.neutral.darkest,
-    marginBottom: '0.5rem',
+    marginBottom: '0.25rem',
     fontFamily: typography.fontFamily.heading,
   },
   sectionSubtitle: {
@@ -176,59 +186,53 @@ const styles = {
     margin: 0,
   },
   cards: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: '2rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
   },
   card: {
     background: colors.neutral.white,
-    borderRadius: borderRadius.xl,
-    padding: '2.5rem',
-    boxShadow: shadows.card,
-    textAlign: 'center',
+    borderRadius: borderRadius.lg,
+    padding: '1.25rem',
+    boxShadow: shadows.sm,
     cursor: 'pointer',
-    transition: 'all 0.3s ease',
+    transition: 'all 0.2s ease',
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: '1.5rem',
+    gap: '1rem',
     border: `1px solid ${colors.neutral.light}`,
   },
   cardIcon: {
-    width: '80px',
-    height: '80px',
+    width: '56px',
+    height: '56px',
     background: gradients.oceanLight,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.lg,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: colors.primary.dark,
+    flexShrink: 0,
   },
   cardTitle: {
-    fontSize: typography.fontSize.xl,
+    fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
     color: colors.neutral.darkest,
     margin: 0,
+    marginBottom: '0.25rem',
     fontFamily: typography.fontFamily.heading,
   },
   cardText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.neutral.dark,
-    lineHeight: '1.6',
+    fontSize: typography.fontSize.xs,
+    color: colors.neutral.medium,
+    lineHeight: '1.4',
     margin: 0,
   },
-  cardBtn: {
-    marginTop: 'auto',
-    padding: '0.875rem 2rem',
-    background: gradients.ocean,
-    color: colors.neutral.white,
-    border: 'none',
-    borderRadius: borderRadius.full,
-    fontWeight: typography.fontWeight.semibold,
-    fontSize: typography.fontSize.sm,
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    boxShadow: shadows.sm,
+  cardContent: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.25rem',
   },
 };
 

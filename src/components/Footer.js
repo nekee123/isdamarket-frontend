@@ -15,7 +15,7 @@ const Footer = () => {
               <h3 style={styles.brandName}>IsdaMarket</h3>
             </div>
             <p style={styles.description}>
-              Your trusted online seafood marketplace. Fresh catch, delivered from local fishermen directly to your door.
+              Your trusted online fish marketplace. Fresh catch, delivered from local fishermen directly to your door.
             </p>
             <div style={styles.socialLinks}>
               <a href="#" style={styles.socialIcon} aria-label="Facebook">
@@ -35,7 +35,7 @@ const Footer = () => {
             <h4 style={styles.columnHeading}>Marketplace</h4>
             <ul style={styles.linkList}>
               <li><Link to="/" style={styles.link}>Home</Link></li>
-              <li><Link to="/buyer-login" style={styles.link}>Shop Seafood</Link></li>
+              <li><Link to="/buyer-login" style={styles.link}>Shop Fish</Link></li>
               <li><Link to="/seller-login" style={styles.link}>Become a Seller</Link></li>
               <li><a href="#" style={styles.link}>Featured Products</a></li>
             </ul>

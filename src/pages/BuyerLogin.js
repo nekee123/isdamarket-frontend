@@ -30,11 +30,19 @@ function BuyerLogin() {
 
     try {
       setLoading(true);
+      
+      // Add timeout to fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const res = await fetch(`${BASE_URL}/buyers/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Login failed" }));
@@ -48,7 +56,13 @@ function BuyerLogin() {
       navigate("/buyer-dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      showToast("Cannot connect to server", "error");
+      if (err.name === 'AbortError') {
+        showToast("Request timeout. Please check your connection and try again.", "error");
+      } else if (err.message.includes('Failed to fetch')) {
+        showToast("Cannot connect to server. Make sure the backend is running.", "error");
+      } else {
+        showToast("Connection error: " + err.message, "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -62,13 +76,32 @@ function BuyerLogin() {
     const contact_number = form.contact.value;
     const password = form.password.value;
 
+    // Validate inputs
+    if (!name.trim() || !email.trim() || !contact_number.trim() || !password.trim()) {
+      showToast("Please fill in all fields", "error");
+      return;
+    }
+
+    if (password.length < 6) {
+      showToast("Password must be at least 6 characters", "error");
+      return;
+    }
+
     try {
       setLoading(true);
+      
+      // Add timeout to fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const res = await fetch(`${BASE_URL}/buyers/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, contact_number, password }),
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Sign up failed" }));
@@ -82,7 +115,13 @@ function BuyerLogin() {
       navigate("/buyer-dashboard");
     } catch (err) {
       console.error("Sign up error:", err);
-      showToast("Cannot connect to server", "error");
+      if (err.name === 'AbortError') {
+        showToast("Request timeout. Server might be slow. Please try again.", "error");
+      } else if (err.message.includes('Failed to fetch')) {
+        showToast("Cannot connect to server. Make sure the backend is running at " + BASE_URL, "error");
+      } else {
+        showToast("Connection error: " + err.message, "error");
+      }
     } finally {
       setLoading(false);
     }

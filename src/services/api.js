@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// Replace with your FastAPI backend URL
-const BASE_URL = "http://127.0.0.1:8000"; 
+// Use environment variable for backend URL
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000"; 
 
 // === Products ===
 export const getAllProducts = async () => {
