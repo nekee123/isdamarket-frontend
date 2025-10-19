@@ -96,6 +96,11 @@ function BuyerSettings() {
         body: JSON.stringify(buyer),
       });
       if (res.ok) {
+        // Update localStorage with new profile data
+        localStorage.setItem('buyer_name', buyer.name);
+        if (buyer.profile_picture) {
+          localStorage.setItem('buyer_profile_picture', buyer.profile_picture);
+        }
         showToast("Profile updated successfully!", "success");
       } else {
         showToast("Failed to update profile", "error");

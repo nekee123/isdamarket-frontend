@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import MobileHeader from "../components/MobileHeader";
@@ -5,9 +6,61 @@ import MobileNav from "../components/MobileNav";
 import { FiShoppingBag, FiPackage, FiSettings, FiTrendingUp } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 function BuyerDashboard() {
   const navigate = useNavigate();
   const { buyerAuth } = useAuth();
+  const [stats, setStats] = useState({
+    activeOrders: 0,
+    totalPurchases: 0,
+    productsAvailable: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch active orders count
+        const ordersRes = await fetch(`${BASE_URL}/orders/buyer/${buyerAuth.uid}`);
+        if (ordersRes.ok) {
+          const ordersData = await ordersRes.json();
+          const activeCount = ordersData.filter(order => 
+            order.status !== 'delivered' && order.status !== 'cancelled'
+          ).length;
+          const totalCount = ordersData.filter(order => 
+            order.status === 'delivered'
+          ).length;
+          
+          setStats(prev => ({
+            ...prev,
+            activeOrders: activeCount,
+            totalPurchases: totalCount
+          }));
+        }
+        
+        // Fetch total products available
+        const productsRes = await fetch(`${BASE_URL}/products/`);
+        if (productsRes.ok) {
+          const productsData = await productsRes.json();
+          setStats(prev => ({
+            ...prev,
+            productsAvailable: productsData.length
+          }));
+        }
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (buyerAuth.uid) {
+      fetchStats();
+    }
+  }, [buyerAuth.uid]);
 
   const handleSearch = (query) => {
     // Navigate to browse page with search query
@@ -37,21 +90,21 @@ function BuyerDashboard() {
             <div style={styles.statCard}>
               <div style={styles.statIcon}>📦</div>
               <div style={styles.statContent}>
-                <div style={styles.statNumber}>0</div>
+                <div style={styles.statNumber}>{loading ? '...' : stats.activeOrders}</div>
                 <div style={styles.statLabel}>Active Orders</div>
               </div>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statIcon}>⭐</div>
               <div style={styles.statContent}>
-                <div style={styles.statNumber}>0</div>
+                <div style={styles.statNumber}>{loading ? '...' : stats.totalPurchases}</div>
                 <div style={styles.statLabel}>Total Purchases</div>
               </div>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statIcon}>🐟</div>
               <div style={styles.statContent}>
-                <div style={styles.statNumber}>500+</div>
+                <div style={styles.statNumber}>{loading ? '...' : stats.productsAvailable > 0 ? `${stats.productsAvailable}+` : 0}</div>
                 <div style={styles.statLabel}>Products Available</div>
               </div>
             </div>
@@ -111,128 +164,128 @@ const styles = {
   },
   container: {
     flex: 1,
-    padding: 'calc(4.5rem + env(safe-area-inset-top)) 1rem calc(5rem + env(safe-area-inset-bottom))',
+    paddingTop: '9rem',
+    paddingBottom: '5rem',
+    paddingLeft: '1rem',
+    paddingRight: '1rem',
     width: '100%',
     maxWidth: '100%',
   },
   hero: {
-    marginBottom: '2rem',
-  },
-  welcomeSection: {
     marginBottom: '1.5rem',
   },
+  welcomeSection: {
+    marginBottom: '1rem',
+    padding: '0.5rem',
+  },
   title: {
-    fontSize: typography.fontSize['2xl'],
+    fontSize: 'clamp(1.25rem, 5vw, 1.5rem)',
     fontWeight: typography.fontWeight.bold,
     color: colors.neutral.darkest,
-    marginBottom: '0.5rem',
+    marginBottom: '0.25rem',
     fontFamily: typography.fontFamily.heading,
+    lineHeight: '1.3',
   },
   subtitle: {
-    fontSize: typography.fontSize.sm,
+    fontSize: 'clamp(0.813rem, 3vw, 0.875rem)',
     color: colors.neutral.dark,
     margin: 0,
-    lineHeight: '1.5',
+    lineHeight: '1.4',
   },
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '0.75rem',
-    marginTop: '1rem',
+    gap: '0.5rem',
+    marginTop: '0.5rem',
   },
   statCard: {
     background: colors.neutral.white,
-    padding: '1rem',
+    padding: '0.75rem 0.5rem',
     borderRadius: borderRadius.lg,
     boxShadow: shadows.sm,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: '0.25rem',
     border: `1px solid ${colors.neutral.light}`,
-    textAlign: 'center',
   },
   statIcon: {
-    fontSize: '1.75rem',
+    fontSize: '1.5rem',
   },
   statContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.25rem',
+    textAlign: 'center',
   },
   statNumber: {
-    fontSize: typography.fontSize.lg,
+    fontSize: 'clamp(1.125rem, 4vw, 1.25rem)',
     fontWeight: typography.fontWeight.bold,
     color: colors.primary.main,
-    fontFamily: typography.fontFamily.heading,
+    marginBottom: '0.125rem',
   },
   statLabel: {
-    fontSize: typography.fontSize.xs,
+    fontSize: 'clamp(0.625rem, 2.5vw, 0.75rem)',
     color: colors.neutral.dark,
+    fontWeight: typography.fontWeight.medium,
+    lineHeight: '1.2',
   },
   sectionHeader: {
-    marginBottom: '1rem',
+    marginBottom: '0.75rem',
+    padding: '0.5rem',
   },
   sectionTitle: {
-    fontSize: typography.fontSize.xl,
+    fontSize: 'clamp(1rem, 4vw, 1.125rem)',
     fontWeight: typography.fontWeight.bold,
     color: colors.neutral.darkest,
     marginBottom: '0.25rem',
     fontFamily: typography.fontFamily.heading,
   },
   sectionSubtitle: {
-    fontSize: typography.fontSize.base,
+    fontSize: 'clamp(0.75rem, 3vw, 0.875rem)',
     color: colors.neutral.dark,
     margin: 0,
   },
   cards: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
+    gap: '0.75rem',
   },
   card: {
     background: colors.neutral.white,
+    padding: '1rem',
     borderRadius: borderRadius.lg,
-    padding: '1.25rem',
-    boxShadow: shadows.sm,
+    boxShadow: shadows.card,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.875rem',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: '1rem',
     border: `1px solid ${colors.neutral.light}`,
   },
   cardIcon: {
-    width: '56px',
-    height: '56px',
-    background: gradients.oceanLight,
+    width: '2.5rem',
+    height: '2.5rem',
     borderRadius: borderRadius.lg,
+    background: gradients.oceanLight,
+    color: colors.primary.dark,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: colors.primary.dark,
     flexShrink: 0,
-  },
-  cardTitle: {
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.neutral.darkest,
-    margin: 0,
-    marginBottom: '0.25rem',
-    fontFamily: typography.fontFamily.heading,
-  },
-  cardText: {
-    fontSize: typography.fontSize.xs,
-    color: colors.neutral.medium,
-    lineHeight: '1.4',
-    margin: 0,
   },
   cardContent: {
     flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.25rem',
+  },
+  cardTitle: {
+    fontSize: 'clamp(0.875rem, 3.5vw, 1rem)',
+    fontWeight: typography.fontWeight.bold,
+    color: colors.neutral.darkest,
+    marginBottom: '0.125rem',
+    fontFamily: typography.fontFamily.heading,
+  },
+  cardText: {
+    fontSize: 'clamp(0.75rem, 3vw, 0.813rem)',
+    color: colors.neutral.dark,
+    margin: 0,
+    lineHeight: '1.3',
   },
 };
 

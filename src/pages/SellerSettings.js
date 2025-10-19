@@ -98,6 +98,11 @@ function SellerSettings() {
         body: JSON.stringify(seller),
       });
       if (res.ok) {
+        // Update localStorage with new profile data
+        localStorage.setItem('seller_name', seller.name);
+        if (seller.profile_picture) {
+          localStorage.setItem('seller_profile_picture', seller.profile_picture);
+        }
         showToast("Profile updated successfully!", "success");
       } else {
         showToast("Failed to update profile", "error");

@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../components/Toast";
-import { FiShoppingCart, FiMapPin, FiPackage, FiStar, FiUser } from "react-icons/fi";
+import { FiShoppingCart, FiMapPin, FiPackage, FiStar, FiUser, FiMessageCircle } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -74,6 +74,60 @@ function BrowseFish() {
     
     if (filtered.length === 0) {
       showToast(`No results found for "${query}"`, "info");
+    }
+  };
+
+  const handleMessageSeller = async (sellerId, sellerName) => {
+    if (!buyerAuth.isAuthenticated) {
+      showToast("Please log in to message sellers.", "warning");
+      navigate('/buyer-login');
+      return;
+    }
+
+    try {
+      const messageData = {
+        sender_uid: buyerAuth.uid,
+        sender_type: "buyer",
+        recipient_uid: sellerId,
+        recipient_type: "seller",
+        message: `Hi ${sellerName}! I'm interested in your products.`,
+      };
+      
+      console.log('Sending message data:', messageData);
+      
+      const res = await fetch(`${BASE_URL}/messages/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(messageData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Backend error:', errorData);
+        
+        // Handle array of errors from FastAPI validation
+        let errorMessage = 'Failed to send message';
+        if (errorData.detail) {
+          if (Array.isArray(errorData.detail)) {
+            errorMessage = errorData.detail.map(err => `${err.loc.join('.')}: ${err.msg}`).join(', ');
+          } else if (typeof errorData.detail === 'string') {
+            errorMessage = errorData.detail;
+          }
+        }
+        
+        showToast(`Error: ${errorMessage}`, 'error');
+        return;
+      }
+
+      showToast('Message sent! Opening chat...', 'success');
+      // Wait a bit for backend to process, then navigate
+      setTimeout(() => {
+        navigate('/buyer-dashboard/messages');
+      }, 500);
+    } catch (err) {
+      console.error("Error starting conversation:", err);
+      showToast('Failed to send message. Opening messages page...', 'warning');
+      navigate('/buyer-dashboard/messages');
     }
   };
 

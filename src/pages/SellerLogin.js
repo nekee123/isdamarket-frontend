@@ -51,7 +51,7 @@ function SellerLogin() {
       }
 
       const data = await res.json();
-      loginSeller(data.token, data.uid, data.name);
+      loginSeller(data.token, data.uid, data.name, data.profile_picture);
       showToast("Login successful!", "success");
       navigate("/seller-dashboard");
     } catch (err) {
@@ -111,7 +111,7 @@ function SellerLogin() {
       }
 
       const data = await res.json();
-      loginSeller(data.token, data.uid, data.name);
+      loginSeller(data.token, data.uid, data.name, data.profile_picture);
       showToast("Account created successfully!", "success");
       navigate("/seller-dashboard");
     } catch (err) {

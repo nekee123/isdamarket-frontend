@@ -142,8 +142,10 @@ const styles = {
   navbar: {
     background: colors.neutral.white,
     boxShadow: shadows.md,
-    position: 'sticky',
+    position: 'fixed',
     top: 0,
+    left: 0,
+    right: 0,
     zIndex: 1000,
     borderBottom: `1px solid ${colors.neutral.light}`,
   },

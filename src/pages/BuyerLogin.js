@@ -51,7 +51,7 @@ function BuyerLogin() {
       }
 
       const data = await res.json();
-      loginBuyer(data.token, data.uid, data.name);
+      loginBuyer(data.token, data.uid, data.name, data.profile_picture);
       showToast("Login successful!", "success");
       navigate("/buyer-dashboard");
     } catch (err) {
@@ -110,7 +110,7 @@ function BuyerLogin() {
       }
 
       const data = await res.json();
-      loginBuyer(data.token, data.uid, data.name);
+      loginBuyer(data.token, data.uid, data.name, data.profile_picture);
       showToast("Account created successfully!", "success");
       navigate("/buyer-dashboard");
     } catch (err) {

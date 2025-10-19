@@ -105,7 +105,10 @@ const styles = {
     flex: 1,
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '3rem 2rem',
+    paddingTop: '6rem',
+    paddingBottom: '3rem',
+    paddingLeft: '2rem',
+    paddingRight: '2rem',
     width: '100%',
   },
   hero: {

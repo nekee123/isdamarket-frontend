@@ -7,7 +7,7 @@ import StarRating from '../components/StarRating';
 import ReviewCard from '../components/ReviewCard';
 import { useToast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
-import { FiMapPin, FiPhone, FiMail, FiShoppingCart, FiPackage, FiStar, FiHeart, FiFlag } from 'react-icons/fi';
+import { FiMapPin, FiPhone, FiMail, FiShoppingCart, FiPackage, FiStar, FiHeart, FiFlag, FiMessageCircle } from 'react-icons/fi';
 import { colors, gradients, shadows, borderRadius, typography } from '../styles/theme';
 
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -53,6 +53,45 @@ function SellerProfile() {
       showToast('Failed to load seller information', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMessageSeller = async () => {
+    if (!buyerAuth.isAuthenticated) {
+      showToast('Please log in to message the seller', 'warning');
+      navigate('/buyer-login');
+      return;
+    }
+
+    try {
+      const messageData = {
+        sender_uid: buyerAuth.uid,
+        sender_type: 'buyer',
+        recipient_uid: sellerId,
+        recipient_type: 'seller',
+        message: `Hi ${seller.name}! I'm interested in your products.`,
+      };
+      
+      const res = await fetch(`${BASE_URL}/messages/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(messageData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Backend error:', errorData);
+        showToast('Failed to send message', 'error');
+        return;
+      }
+
+      showToast('Message sent! Opening chat...', 'success');
+      setTimeout(() => {
+        navigate('/buyer-dashboard/messages');
+      }, 500);
+    } catch (err) {
+      console.error('Error starting conversation:', err);
+      showToast('Failed to send message', 'error');
     }
   };
 
@@ -170,6 +209,10 @@ function SellerProfile() {
               )}
             </div>
             <div style={styles.actionButtons}>
+              <button style={styles.messageBtn} onClick={handleMessageSeller}>
+                <FiMessageCircle size={20} />
+                <span>Message Seller</span>
+              </button>
               <button 
                 style={{...styles.iconBtn, background: isFavorite ? colors.accent.light : colors.neutral.lightest}}
                 onClick={handleFavorite}
@@ -374,7 +417,22 @@ const styles = {
   },
   actionButtons: {
     display: 'flex',
+    gap: '0.75rem',
+    flexWrap: 'wrap',
+  },
+  messageBtn: {
+    display: 'flex',
+    alignItems: 'center',
     gap: '0.5rem',
+    padding: '0.75rem 1.25rem',
+    borderRadius: borderRadius.full,
+    border: `2px solid ${colors.primary.main}`,
+    background: colors.neutral.white,
+    color: colors.primary.main,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
   iconBtn: {
     width: '44px',

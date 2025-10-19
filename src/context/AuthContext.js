@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     token: null,
     uid: null,
     name: null,
+    profile_picture: null,
   });
 
   const [sellerAuth, setSellerAuth] = useState({
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }) => {
     token: null,
     uid: null,
     name: null,
+    profile_picture: null,
   });
 
   // Check for existing tokens on mount
@@ -31,6 +33,7 @@ export const AuthProvider = ({ children }) => {
     const buyerToken = localStorage.getItem('buyer_token');
     const buyerUid = localStorage.getItem('buyer_uid');
     const buyerName = localStorage.getItem('buyer_name');
+    const buyerProfilePicture = localStorage.getItem('buyer_profile_picture');
 
     if (buyerToken && buyerUid) {
       setBuyerAuth({
@@ -38,12 +41,14 @@ export const AuthProvider = ({ children }) => {
         token: buyerToken,
         uid: buyerUid,
         name: buyerName,
+        profile_picture: buyerProfilePicture,
       });
     }
 
     const sellerToken = localStorage.getItem('seller_token');
     const sellerUid = localStorage.getItem('seller_uid');
     const sellerName = localStorage.getItem('seller_name');
+    const sellerProfilePicture = localStorage.getItem('seller_profile_picture');
 
     if (sellerToken && sellerUid) {
       setSellerAuth({
@@ -51,31 +56,40 @@ export const AuthProvider = ({ children }) => {
         token: sellerToken,
         uid: sellerUid,
         name: sellerName,
+        profile_picture: sellerProfilePicture,
       });
     }
   }, []);
 
-  const loginBuyer = (token, uid, name) => {
+  const loginBuyer = (token, uid, name, profile_picture = null) => {
     localStorage.setItem('buyer_token', token);
     localStorage.setItem('buyer_uid', uid);
     localStorage.setItem('buyer_name', name);
+    if (profile_picture) {
+      localStorage.setItem('buyer_profile_picture', profile_picture);
+    }
     setBuyerAuth({
       isAuthenticated: true,
       token,
       uid,
       name,
+      profile_picture,
     });
   };
 
-  const loginSeller = (token, uid, name) => {
+  const loginSeller = (token, uid, name, profile_picture = null) => {
     localStorage.setItem('seller_token', token);
     localStorage.setItem('seller_uid', uid);
     localStorage.setItem('seller_name', name);
+    if (profile_picture) {
+      localStorage.setItem('seller_profile_picture', profile_picture);
+    }
     setSellerAuth({
       isAuthenticated: true,
       token,
       uid,
       name,
+      profile_picture,
     });
   };
 
@@ -83,11 +97,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('buyer_token');
     localStorage.removeItem('buyer_uid');
     localStorage.removeItem('buyer_name');
+    localStorage.removeItem('buyer_profile_picture');
     setBuyerAuth({
       isAuthenticated: false,
       token: null,
       uid: null,
       name: null,
+      profile_picture: null,
     });
   };
 
@@ -95,11 +111,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('seller_token');
     localStorage.removeItem('seller_uid');
     localStorage.removeItem('seller_name');
+    localStorage.removeItem('seller_profile_picture');
     setSellerAuth({
       isAuthenticated: false,
       token: null,
       uid: null,
       name: null,
+      profile_picture: null,
     });
   };
 
