@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+import { BASE_URL } from "../config/api";
 
 const SearchBar = ({ defaultType, userType }) => {
   const [searchTerm, setSearchTerm] = useState("");

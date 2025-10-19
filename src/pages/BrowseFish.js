@@ -7,8 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../components/Toast";
 import { FiShoppingCart, FiMapPin, FiPackage, FiStar, FiUser, FiMessageCircle } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
-
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+import { BASE_URL } from "../config/api";
 
 function BrowseFish() {
   const navigate = useNavigate();

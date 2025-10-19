@@ -5,8 +5,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../components/Toast";
 import { FiMail, FiLock, FiUser, FiPhone, FiArrowLeft } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
-
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+import { BASE_URL } from "../config/api";
 
 function BuyerLogin() {
   const [isLogin, setIsLogin] = useState(true);

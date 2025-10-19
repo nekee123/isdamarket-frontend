@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import BackButton from "../components/BackButton";
 import { FiMessageCircle } from "react-icons/fi";
 
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+import { BASE_URL } from "../config/api";
 
 function ViewProduct() {
   const { id } = useParams(); // product id from URL

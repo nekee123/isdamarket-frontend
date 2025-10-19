@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingSpinner from "./components/LoadingSpinner";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -24,10 +25,11 @@ const SellerProfile = lazy(() => import("./pages/SellerProfile"));
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <Suspense fallback={<LoadingSpinner fullScreen={true} />}>
-          <Routes>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <Suspense fallback={<LoadingSpinner fullScreen={true} />}>
+            <Routes>
           {/* 🏠 Main Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/buyer-login" element={<BuyerLogin />} />
@@ -125,6 +127,7 @@ function App() {
         </Suspense>
       </AuthProvider>
     </Router>
+    </ErrorBoundary>
   );
 }
 

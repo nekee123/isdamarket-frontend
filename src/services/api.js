@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Use environment variable for backend URL
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000"; 
+import { BASE_URL } from "../config/api"; 
 
 // === Products ===
 export const getAllProducts = async () => {

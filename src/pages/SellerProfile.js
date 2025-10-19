@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { FiMapPin, FiPhone, FiMail, FiShoppingCart, FiPackage, FiStar, FiHeart, FiFlag, FiMessageCircle } from 'react-icons/fi';
 import { colors, gradients, shadows, borderRadius, typography } from '../styles/theme';
 
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+import { BASE_URL } from "../config/api";
 
 function SellerProfile() {
   const { sellerId } = useParams();

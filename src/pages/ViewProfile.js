@@ -4,7 +4,7 @@ import BackButton from "../components/BackButton";
 import { FiMapPin, FiMail, FiPhone, FiUser, FiMessageCircle } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+import { BASE_URL } from "../config/api";
 
 function ViewProfile() {
   const { id } = useParams(); // user id from URL

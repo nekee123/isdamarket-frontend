@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { BASE_URL } from '../config/api';
 
 /**
  * Fetch all messages between two users
