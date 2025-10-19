@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
@@ -7,7 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../components/Toast";
 import { FiShoppingCart, FiMapPin, FiPackage, FiStar, FiUser, FiMessageCircle } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
-import { BASE_URL } from "../config/api";
+import { getAllProducts, createOrder } from "../services/api";
 
 function BrowseFish() {
   const navigate = useNavigate();
@@ -20,12 +20,12 @@ function BrowseFish() {
   const { buyerAuth } = useAuth();
   const { showToast, ToastContainer } = useToast();
 
-  // Fetch products from backend
+  // Fetch products from backend with caching
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/products/`);
-        const data = await res.json();
+        // Use cached API call for better performance
+        const data = await getAllProducts(true);
         console.log("Fetched products:", data);
         setProducts(data);
         setFilteredProducts(data);
@@ -38,9 +38,9 @@ function BrowseFish() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [showToast]);
 
-  const groupProductsBySeller = (productList) => {
+  const groupProductsBySeller = useCallback((productList) => {
     const grouped = productList.reduce((acc, product) => {
       const sellerKey = product.seller_uid;
       if (!acc[sellerKey]) {
@@ -55,9 +55,9 @@ function BrowseFish() {
       return acc;
     }, {});
     setSellerGroups(grouped);
-  };
+  }, []);
 
-  const handleSearch = (query) => {
+  const handleSearch = useCallback((query) => {
     setSearchQuery(query);
     const lowerQuery = query.toLowerCase();
     
@@ -74,11 +74,11 @@ function BrowseFish() {
     if (filtered.length === 0) {
       showToast(`No results found for "${query}"`, "info");
     }
-  };
+  }, [products, groupProductsBySeller, showToast]);
 
   // Message function removed - buyers can contact sellers via phone number
 
-  const handleBuyNow = async (product) => {
+  const handleBuyNow = useCallback(async (product) => {
     if (!buyerAuth.isAuthenticated) {
       showToast("Please log in as a buyer first.", "warning");
       navigate('/buyer-login');
@@ -93,27 +93,18 @@ function BrowseFish() {
     try {
       setPurchaseLoading(product.uid);
       
-      const res = await fetch(`${BASE_URL}/orders/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          buyer_uid: buyerAuth.uid,
-          buyer_name: buyerAuth.name,
-          seller_uid: product.seller_uid,
-          seller_name: product.seller_name,
-          fish_product_uid: product.uid,
-          fish_product_name: product.name,
-          quantity: 1,
-          total_price: product.price,
-        }),
-      });
+      const orderData = {
+        buyer_uid: buyerAuth.uid,
+        buyer_name: buyerAuth.name,
+        seller_uid: product.seller_uid,
+        seller_name: product.seller_name,
+        fish_product_uid: product.uid,
+        fish_product_name: product.name,
+        quantity: 1,
+        total_price: product.price,
+      };
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to create order");
-      }
-
-      const data = await res.json();
+      const data = await createOrder(orderData);
       showToast(`Order placed for ${data.fish_product_name}!`, "success");
     } catch (err) {
       console.error(err);
@@ -121,7 +112,7 @@ function BrowseFish() {
     } finally {
       setPurchaseLoading(null);
     }
-  };
+  }, [buyerAuth, navigate, showToast]);
 
   if (loading) {
     return (
@@ -147,11 +138,11 @@ function BrowseFish() {
               Showing results for: <strong>"{searchQuery}"</strong>
               <button 
                 style={styles.clearSearchBtn}
-                onClick={() => {
+                onClick={useCallback(() => {
                   setSearchQuery('');
                   setFilteredProducts(products);
                   groupProductsBySeller(products);
-                }}
+                }, [products, groupProductsBySeller])}
               >
                 Clear search
               </button>

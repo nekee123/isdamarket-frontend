@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import MobileHeader from "../components/MobileHeader";
 import MobileNav from "../components/MobileNav";
 import { FiShoppingBag, FiPackage, FiSettings, FiTrendingUp } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
-import { BASE_URL } from "../config/api";
+import { getAllProducts, getOrdersByBuyer } from "../services/api";
 
 function BuyerDashboard() {
   const navigate = useNavigate();
@@ -17,54 +17,49 @@ function BuyerDashboard() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch active orders count
-        const ordersRes = await fetch(`${BASE_URL}/orders/buyer/${buyerAuth.uid}`);
-        if (ordersRes.ok) {
-          const ordersData = await ordersRes.json();
-          const activeCount = ordersData.filter(order => 
-            order.status !== 'delivered' && order.status !== 'cancelled'
-          ).length;
-          const totalCount = ordersData.filter(order => 
-            order.status === 'delivered'
-          ).length;
-          
-          setStats(prev => ({
-            ...prev,
-            activeOrders: activeCount,
-            totalPurchases: totalCount
-          }));
-        }
-        
-        // Fetch total products available
-        const productsRes = await fetch(`${BASE_URL}/products/`);
-        if (productsRes.ok) {
-          const productsData = await productsRes.json();
-          setStats(prev => ({
-            ...prev,
-            productsAvailable: productsData.length
-          }));
-        }
-      } catch (err) {
-        console.error('Error fetching stats:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Memoize the fetch function to prevent recreation on every render
+  const fetchStats = useCallback(async () => {
+    if (!buyerAuth.uid) return;
     
-    if (buyerAuth.uid) {
-      fetchStats();
+    try {
+      setLoading(true);
+      
+      // Fetch both orders and products in parallel using cached API calls
+      const [ordersData, productsData] = await Promise.all([
+        getOrdersByBuyer(buyerAuth.uid, true), // Use cache
+        getAllProducts(true), // Use cache
+      ]);
+      
+      // Calculate stats from orders
+      const activeCount = ordersData.filter(order => 
+        order.status !== 'delivered' && order.status !== 'cancelled'
+      ).length;
+      const totalCount = ordersData.filter(order => 
+        order.status === 'delivered'
+      ).length;
+      
+      // Update all stats at once
+      setStats({
+        activeOrders: activeCount,
+        totalPurchases: totalCount,
+        productsAvailable: productsData.length
+      });
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+      // Keep previous stats on error
+    } finally {
+      setLoading(false);
     }
   }, [buyerAuth.uid]);
 
-  const handleSearch = (query) => {
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  const handleSearch = useCallback((query) => {
     // Navigate to browse page with search query
     navigate(`/buyer-dashboard/browse?search=${encodeURIComponent(query)}`);
-  };
+  }, [navigate]);
 
   return (
     <div style={styles.pageWrapper}>

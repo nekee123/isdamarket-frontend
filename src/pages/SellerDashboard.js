@@ -1,13 +1,62 @@
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { FiBox, FiShoppingCart, FiSettings, FiTrendingUp } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
+import { getProductsBySeller, getOrdersBySeller } from "../services/api";
 
 function SellerDashboard() {
   const navigate = useNavigate();
   const { sellerAuth } = useAuth();
+  const [stats, setStats] = useState({
+    pendingOrders: 0,
+    listedProducts: 0,
+    totalRevenue: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Fetch seller stats
+  const fetchStats = useCallback(async () => {
+    if (!sellerAuth.uid) return;
+    
+    try {
+      setLoading(true);
+      
+      // Fetch both products and orders in parallel using cached API calls
+      const [productsData, ordersData] = await Promise.all([
+        getProductsBySeller(sellerAuth.uid),
+        getOrdersBySeller(sellerAuth.uid, true), // Use cache
+      ]);
+      
+      // Calculate pending orders (orders that are not delivered or cancelled)
+      const pendingCount = ordersData.filter(order => 
+        order.status !== 'delivered' && order.status !== 'cancelled'
+      ).length;
+      
+      // Calculate total revenue from delivered orders
+      const revenue = ordersData
+        .filter(order => order.status === 'delivered')
+        .reduce((sum, order) => sum + (order.total_price || 0), 0);
+      
+      // Update all stats at once
+      setStats({
+        pendingOrders: pendingCount,
+        listedProducts: productsData.length,
+        totalRevenue: revenue
+      });
+    } catch (err) {
+      console.error('Error fetching seller stats:', err);
+      // Keep previous stats on error
+    } finally {
+      setLoading(false);
+    }
+  }, [sellerAuth.uid]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   return (
     <div style={styles.pageWrapper}>
@@ -27,7 +76,7 @@ function SellerDashboard() {
             <div style={styles.statCard}>
               <div style={styles.statIcon}>📦</div>
               <div style={styles.statContent}>
-                <div style={styles.statNumber}>0</div>
+                <div style={styles.statNumber}>{loading ? '...' : stats.pendingOrders}</div>
                 <div style={styles.statLabel}>Pending Orders</div>
                 <div style={styles.statHint}>Orders awaiting action</div>
               </div>
@@ -36,7 +85,7 @@ function SellerDashboard() {
             <div style={styles.statCard}>
               <div style={styles.statIcon}>🐟</div>
               <div style={styles.statContent}>
-                <div style={styles.statNumber}>0</div>
+                <div style={styles.statNumber}>{loading ? '...' : stats.listedProducts}</div>
                 <div style={styles.statLabel}>Listed Products</div>
                 <div style={styles.statHint}>Active fish listings</div>
               </div>
@@ -45,7 +94,7 @@ function SellerDashboard() {
             <div style={styles.statCard}>
               <div style={styles.statIcon}>💰</div>
               <div style={styles.statContent}>
-                <div style={styles.statNumber}>₱0</div>
+                <div style={styles.statNumber}>{loading ? '...' : `₱${stats.totalRevenue.toLocaleString()}`}</div>
                 <div style={styles.statLabel}>Total Revenue</div>
                 <div style={styles.statHint}>From completed sales</div>
               </div>

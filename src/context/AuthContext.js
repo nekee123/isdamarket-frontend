@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
@@ -121,14 +121,15 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const value = {
+  // Memoize the context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
     buyerAuth,
     sellerAuth,
     loginBuyer,
     loginSeller,
     logoutBuyer,
     logoutSeller,
-  };
+  }), [buyerAuth, sellerAuth]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
