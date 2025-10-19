@@ -14,11 +14,9 @@ const SellerDashboard = lazy(() => import("./pages/SellerDashboard"));
 const BuyerOrders = lazy(() => import("./pages/MyOrders"));
 const BrowseFish = lazy(() => import("./pages/BrowseFish"));
 const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
-const BuyerMessages = lazy(() => import("./pages/BuyerMessages"));
 const SellerProducts = lazy(() => import("./pages/SellerProducts"));
 const SellerOrders = lazy(() => import("./pages/SellerOrders"));
 const SellerSettings = lazy(() => import("./pages/SellerSettings"));
-const SellerMessages = lazy(() => import("./pages/SellerMessages"));
 const ViewProduct = lazy(() => import("./pages/ViewProduct"));
 const ViewProfile = lazy(() => import("./pages/ViewProfile"));
 const SellerProfile = lazy(() => import("./pages/SellerProfile"));
@@ -68,14 +66,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/buyer-dashboard/messages" 
-            element={
-              <ProtectedRoute userType="buyer">
-                <BuyerMessages />
-              </ProtectedRoute>
-            } 
-          />
 
           {/* 🐟 Seller Dashboard & Sub-pages */}
           <Route 
@@ -107,14 +97,6 @@ function App() {
             element={
               <ProtectedRoute userType="seller">
                 <SellerSettings />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/seller-dashboard/messages" 
-            element={
-              <ProtectedRoute userType="seller">
-                <SellerMessages />
               </ProtectedRoute>
             } 
           />

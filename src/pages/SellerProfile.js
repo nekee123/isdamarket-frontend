@@ -7,7 +7,7 @@ import StarRating from '../components/StarRating';
 import ReviewCard from '../components/ReviewCard';
 import { useToast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
-import { FiMapPin, FiPhone, FiMail, FiShoppingCart, FiPackage, FiStar, FiHeart, FiFlag, FiMessageCircle } from 'react-icons/fi';
+import { FiMapPin, FiPhone, FiMail, FiShoppingCart, FiPackage, FiStar, FiHeart, FiFlag } from 'react-icons/fi';
 import { colors, gradients, shadows, borderRadius, typography } from '../styles/theme';
 
 import { BASE_URL } from "../config/api";
@@ -56,44 +56,7 @@ function SellerProfile() {
     }
   };
 
-  const handleMessageSeller = async () => {
-    if (!buyerAuth.isAuthenticated) {
-      showToast('Please log in to message the seller', 'warning');
-      navigate('/buyer-login');
-      return;
-    }
-
-    try {
-      const messageData = {
-        sender_uid: buyerAuth.uid,
-        sender_type: 'buyer',
-        recipient_uid: sellerId,
-        recipient_type: 'seller',
-        message: `Hi ${seller.name}! I'm interested in your products.`,
-      };
-      
-      const res = await fetch(`${BASE_URL}/messages/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(messageData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error('Backend error:', errorData);
-        showToast('Failed to send message', 'error');
-        return;
-      }
-
-      showToast('Message sent! Opening chat...', 'success');
-      setTimeout(() => {
-        navigate('/buyer-dashboard/messages');
-      }, 500);
-    } catch (err) {
-      console.error('Error starting conversation:', err);
-      showToast('Failed to send message', 'error');
-    }
-  };
+  // Message function removed - buyers can contact sellers via phone number
 
   const handleBuyNow = async (product) => {
     if (!buyerAuth.isAuthenticated) {
@@ -217,10 +180,6 @@ function SellerProfile() {
               )}
             </div>
             <div style={styles.actionButtons}>
-              <button style={styles.messageBtn} onClick={handleMessageSeller}>
-                <FiMessageCircle size={20} />
-                <span>Message Seller</span>
-              </button>
               <button 
                 style={{...styles.iconBtn, background: isFavorite ? colors.accent.light : colors.neutral.lightest}}
                 onClick={handleFavorite}
