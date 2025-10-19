@@ -9,7 +9,7 @@ import { useToast } from "../components/Toast";
 import { FiPackage, FiTruck, FiCheckCircle, FiXCircle, FiStar, FiMapPin } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 function MyOrders() {
   const [orders, setOrders] = useState([]);

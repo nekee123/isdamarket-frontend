@@ -8,7 +8,7 @@ import { useToast } from "../components/Toast";
 import { FiUser, FiMail, FiPhone, FiCamera, FiSave } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 function BuyerSettings() {
   const [buyer, setBuyer] = useState({ name: "", email: "", contact_number: "", profile_picture: "" });

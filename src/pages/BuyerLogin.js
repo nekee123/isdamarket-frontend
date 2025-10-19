@@ -6,7 +6,7 @@ import { useToast } from "../components/Toast";
 import { FiMail, FiLock, FiUser, FiPhone, FiArrowLeft } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 function BuyerLogin() {
   const [isLogin, setIsLogin] = useState(true);

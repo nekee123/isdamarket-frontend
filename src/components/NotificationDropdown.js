@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiBell, FiX, FiCheck, FiShoppingBag, FiStar, FiTruck, FiCheckCircle } from 'react-icons/fi';
 import { colors, gradients, shadows, borderRadius, typography } from '../styles/theme';
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const NotificationDropdown = ({ userType, userId }) => {
   const [notifications, setNotifications] = useState([]);

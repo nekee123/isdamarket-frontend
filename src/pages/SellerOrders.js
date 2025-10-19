@@ -8,7 +8,7 @@ import { useToast } from "../components/Toast";
 import { FiPackage, FiTruck, FiCheckCircle, FiXCircle, FiUser, FiPhone } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 function SellerOrders() {
   const [orders, setOrders] = useState([]);
