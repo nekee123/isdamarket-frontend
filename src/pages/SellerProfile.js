@@ -190,11 +190,19 @@ function SellerProfile() {
         {/* Seller Header Card */}
         <div style={styles.sellerCard}>
           <div style={styles.sellerHeader}>
-            <div style={styles.sellerAvatar}>
-              <span style={styles.avatarText}>
-                {seller.name?.charAt(0).toUpperCase() || 'S'}
-              </span>
-            </div>
+            {seller.profile_picture ? (
+              <img 
+                src={seller.profile_picture} 
+                alt={seller.name}
+                style={styles.sellerAvatarImage}
+              />
+            ) : (
+              <div style={styles.sellerAvatar}>
+                <span style={styles.avatarText}>
+                  {seller.name?.charAt(0).toUpperCase() || 'S'}
+                </span>
+              </div>
+            )}
             <div style={styles.sellerInfo}>
               <h1 style={styles.sellerName}>{seller.name}</h1>
               <div style={styles.ratingSection}>
@@ -355,7 +363,7 @@ const styles = {
     flex: 1,
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '2rem',
+    padding: '6rem 2rem 2rem 2rem',
     width: '100%',
   },
   sellerCard: {
@@ -381,6 +389,14 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
+  },
+  sellerAvatarImage: {
+    width: '100px',
+    height: '100px',
+    borderRadius: borderRadius.full,
+    objectFit: 'cover',
+    flexShrink: 0,
+    border: `3px solid ${colors.primary.main}`,
   },
   avatarText: {
     fontSize: '3rem',

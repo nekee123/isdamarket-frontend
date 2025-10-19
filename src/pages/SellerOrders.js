@@ -158,13 +158,13 @@ function SellerOrders() {
             {orders.map((order) => (
               <div key={order.uid} style={styles.orderCard}>
                 <div style={styles.orderHeader}>
-                  <div>
-                    <h3 style={styles.productName}>{order.fish_product_name}</h3>
+                  <h3 style={styles.productName}>{order.fish_product_name}</h3>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                     <p style={styles.orderId}>Order #{order.uid.substring(0, 8)}</p>
-                  </div>
-                  <div style={{...styles.statusBadge, background: `${getStatusColor(order.status)}20`, color: getStatusColor(order.status)}}>
-                    {getStatusIcon(order.status)}
-                    <span>{getStatusText(order.status)}</span>
+                    <div style={{...styles.statusBadge, background: `${getStatusColor(order.status)}20`, color: getStatusColor(order.status)}}>
+                      {getStatusIcon(order.status)}
+                      <span>{getStatusText(order.status)}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -287,29 +287,32 @@ const styles = {
     color: colors.neutral.medium,
   },
   ordersGrid: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
     gap: '1.5rem',
   },
   orderCard: {
     background: colors.neutral.white,
-    borderRadius: borderRadius.lg,
+    borderRadius: borderRadius.xl,
     padding: '1.5rem',
     boxShadow: shadows.card,
     border: `1px solid ${colors.neutral.light}`,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '300px',
   },
   orderHeader: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '1.5rem',
-    gap: '1rem',
+    flexDirection: 'column',
+    gap: '0.75rem',
+    marginBottom: '1rem',
   },
   productName: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.semibold,
     color: colors.neutral.darkest,
     marginBottom: '0.25rem',
+    lineHeight: '1.3',
   },
   orderId: {
     fontSize: typography.fontSize.xs,
@@ -329,10 +332,11 @@ const styles = {
   orderDetails: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.75rem',
-    marginBottom: '1.5rem',
-    paddingBottom: '1.5rem',
+    gap: '0.5rem',
+    marginBottom: '1rem',
+    paddingBottom: '1rem',
     borderBottom: `1px solid ${colors.neutral.light}`,
+    flex: 1,
   },
   detailRow: {
     display: 'flex',
@@ -362,16 +366,17 @@ const styles = {
   },
   orderActions: {
     display: 'flex',
-    gap: '1rem',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
+    gap: '0.75rem',
+    marginTop: 'auto',
   },
   confirmBtn: {
-    flex: 1,
+    width: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '0.5rem',
-    padding: '0.75rem 1.5rem',
+    padding: '0.75rem 1rem',
     background: gradients.ocean,
     color: colors.neutral.white,
     border: 'none',
@@ -383,12 +388,12 @@ const styles = {
     boxShadow: shadows.sm,
   },
   cancelBtn: {
-    flex: 1,
+    width: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '0.5rem',
-    padding: '0.75rem 1.5rem',
+    padding: '0.75rem 1rem',
     background: 'transparent',
     color: colors.error,
     border: `2px solid ${colors.error}`,
@@ -399,12 +404,12 @@ const styles = {
     transition: 'all 0.2s ease',
   },
   updateBtn: {
-    flex: 1,
+    width: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '0.5rem',
-    padding: '0.75rem 1.5rem',
+    padding: '0.75rem 1rem',
     background: gradients.ocean,
     color: colors.neutral.white,
     border: 'none',
