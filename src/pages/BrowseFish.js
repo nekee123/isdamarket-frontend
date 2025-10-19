@@ -78,6 +78,12 @@ function BrowseFish() {
 
   // Message function removed - buyers can contact sellers via phone number
 
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+    setFilteredProducts(products);
+    groupProductsBySeller(products);
+  }, [products, groupProductsBySeller]);
+
   const handleBuyNow = useCallback(async (product) => {
     if (!buyerAuth.isAuthenticated) {
       showToast("Please log in as a buyer first.", "warning");
@@ -138,11 +144,7 @@ function BrowseFish() {
               Showing results for: <strong>"{searchQuery}"</strong>
               <button 
                 style={styles.clearSearchBtn}
-                onClick={useCallback(() => {
-                  setSearchQuery('');
-                  setFilteredProducts(products);
-                  groupProductsBySeller(products);
-                }, [products, groupProductsBySeller])}
+                onClick={handleClearSearch}
               >
                 Clear search
               </button>

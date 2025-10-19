@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { FiBox, FiShoppingCart, FiSettings, FiTrendingUp } from "react-icons/fi";
+import { FiBox, FiShoppingCart, FiSettings } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 import { getProductsBySeller, getOrdersBySeller } from "../services/api";
 
