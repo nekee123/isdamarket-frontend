@@ -20,6 +20,7 @@ const SellerSettings = lazy(() => import("./pages/SellerSettings"));
 const ViewProduct = lazy(() => import("./pages/ViewProduct"));
 const ViewProfile = lazy(() => import("./pages/ViewProfile"));
 const SellerProfile = lazy(() => import("./pages/SellerProfile"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 function App() {
   return (
@@ -105,6 +106,9 @@ function App() {
           <Route path="/product/:id" element={<ViewProduct />} />
           <Route path="/profile/:id" element={<ViewProfile />} />
           <Route path="/seller/:sellerId" element={<SellerProfile />} />
+          
+          {/* 🚫 Catch-all route for 404 */}
+          <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </AuthProvider>

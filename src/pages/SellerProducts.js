@@ -366,6 +366,7 @@ const styles = {
     maxWidth: '1200px',
     margin: '0 auto',
     padding: '2rem',
+    paddingTop: '6rem',
     width: '100%',
   },
   header: {
