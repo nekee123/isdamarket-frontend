@@ -1,10 +1,12 @@
-import React, { Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { Suspense, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { lazyWithRetry } from "./utils/lazyRetry";
+
+console.log('🎯 App.js loaded - file executed');
 
 // Lazy load pages with automatic retry logic to prevent white screen on refresh
 const HomePage = lazyWithRetry(() => import("./pages/HomePage"));
@@ -23,12 +25,33 @@ const ViewProfile = lazyWithRetry(() => import("./pages/ViewProfile"));
 const SellerProfile = lazyWithRetry(() => import("./pages/SellerProfile"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
+console.log('✅ All lazy components defined');
+
+// Debug component to log route changes
+function RouteDebugger() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    console.log('📍 Route changed to:', location.pathname);
+  }, [location]);
+  
+  return null;
+}
+
 function App() {
+  console.log('🚀 App component rendering');
+  
   return (
     <ErrorBoundary>
       <Router>
+        <RouteDebugger />
         <AuthProvider>
-          <Suspense fallback={<LoadingSpinner fullScreen={true} />}>
+          <Suspense fallback={
+            <>
+              {console.log('⏳ Suspense fallback showing - loading component...')}
+              <LoadingSpinner fullScreen={true} />
+            </>
+          }>
             <Routes>
           {/* 🏠 Main Routes */}
           <Route path="/" element={<HomePage />} />

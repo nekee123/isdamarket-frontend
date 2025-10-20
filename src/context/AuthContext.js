@@ -12,6 +12,8 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+  console.log('🔐 AuthProvider rendering');
+  
   const [buyerAuth, setBuyerAuth] = useState({
     isAuthenticated: false,
     token: null,
@@ -30,6 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   // Check for existing tokens on mount
   useEffect(() => {
+    console.log('🔍 AuthProvider: Checking localStorage for tokens...');
     const buyerToken = localStorage.getItem('buyer_token');
     const buyerUid = localStorage.getItem('buyer_uid');
     const buyerName = localStorage.getItem('buyer_name');
