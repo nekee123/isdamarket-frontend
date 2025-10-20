@@ -13,7 +13,15 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
-    this.state = { hasError: true, error, errorInfo };
+    this.setState({ hasError: true, error, errorInfo });
+    
+    // If it's a chunk loading error, reload the page after a short delay
+    if (error.name === 'ChunkLoadError' || error.message?.includes('Loading chunk')) {
+      console.warn('Chunk load error detected - will reload page in 2 seconds...');
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
   }
 
   render() {
