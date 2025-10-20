@@ -4,11 +4,30 @@ services:
     env: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./build
+    pullRequestPreviewsEnabled: true
     headers:
       - path: /*
         name: Cache-Control
         value: public, max-age=0, must-revalidate
     routes:
+      - type: rewrite
+        source: /static/*
+        destination: /static/:splat
+      - type: rewrite
+        source: /favicon.ico
+        destination: /favicon.ico
+      - type: rewrite
+        source: /logo192.png
+        destination: /logo192.png
+      - type: rewrite
+        source: /logo512.png
+        destination: /logo512.png
+      - type: rewrite
+        source: /manifest.json
+        destination: /manifest.json
+      - type: rewrite
+        source: /robots.txt
+        destination: /robots.txt
       - type: rewrite
         source: /*
         destination: /index.html
