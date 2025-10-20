@@ -35,6 +35,45 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    
+    <!-- Error handler for chunk loading failures -->
+    <script>
+      // Catch chunk loading errors and reload the page once
+      window.addEventListener('error', function(event) {
+        if (event.message && event.message.includes('Loading chunk')) {
+          console.error('Chunk loading error detected:', event.message);
+          
+          // Only reload once to prevent infinite loops
+          if (!sessionStorage.getItem('chunk-reload-attempted')) {
+            sessionStorage.setItem('chunk-reload-attempted', 'true');
+            console.log('Reloading page to fix chunk loading error...');
+            window.location.reload();
+          } else {
+            console.error('Chunk reload already attempted. Please clear cache and try again.');
+            document.getElementById('root').innerHTML = 
+              '<div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">' +
+              '<h1 style="color: #e74c3c;">⚠️ Loading Error</h1>' +
+              '<p>Unable to load the application. Please try:</p>' +
+              '<ul style="text-align: left; max-width: 400px; margin: 20px auto;">' +
+              '<li>Clear your browser cache (Ctrl+Shift+Delete)</li>' +
+              '<li>Hard refresh the page (Ctrl+Shift+R)</li>' +
+              '<li>Try a different browser</li>' +
+              '</ul>' +
+              '<button onclick="sessionStorage.clear(); location.reload();" ' +
+              'style="padding: 10px 20px; background: #3498db; color: white; border: none; ' +
+              'border-radius: 5px; cursor: pointer; font-size: 16px;">Clear Cache & Retry</button>' +
+              '</div>';
+          }
+        }
+      });
+      
+      // Clear the reload flag when the app loads successfully
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          sessionStorage.removeItem('chunk-reload-attempted');
+        }, 1000);
+      });
+    </script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

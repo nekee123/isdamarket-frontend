@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import BackButton from "../components/BackButton";
-import { FiMessageCircle } from "react-icons/fi";
 
 import { BASE_URL } from "../config/api";
 
@@ -25,70 +24,6 @@ function ViewProduct() {
         setProduct({ error: true, message: "Failed to load product" });
       });
   }, [id]);
-
-  const handleMessageSeller = async () => {
-    const buyer_uid = localStorage.getItem("buyer_uid");
-
-    if (!buyer_uid) {
-      alert("Please log in as a buyer to message the seller.");
-      navigate("/buyer-login");
-      return;
-    }
-
-    if (!product.seller_uid) {
-      alert("Seller information not available for this product.");
-      return;
-    }
-
-    // Create or navigate to conversation with seller
-    try {
-      const messageData = {
-        sender_uid: buyer_uid,
-        sender_type: "buyer",
-        recipient_uid: product.seller_uid,
-        recipient_type: "seller",
-        message: `Hi! I'm interested in your product: ${product.name}`,
-      };
-      
-      console.log('Sending message data:', messageData);
-      console.log('Backend URL:', `${BASE_URL}/messages/`);
-      
-      const res = await fetch(`${BASE_URL}/messages/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(messageData),
-      });
-
-      console.log('Response status:', res.status);
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error('Backend error:', errorData);
-        
-        // Handle array of errors from FastAPI validation
-        let errorMessage = 'Failed to send message';
-        if (errorData.detail) {
-          if (Array.isArray(errorData.detail)) {
-            errorMessage = errorData.detail.map(err => `${err.loc.join('.')}: ${err.msg}`).join(', ');
-          } else if (typeof errorData.detail === 'string') {
-            errorMessage = errorData.detail;
-          }
-        }
-        
-        alert(`Error: ${errorMessage}`);
-        return;
-      }
-
-      const responseData = await res.json();
-      console.log('Message sent successfully:', responseData);
-      
-      // Navigate to messages page with a flag to force refresh
-      navigate("/buyer-dashboard/messages", { state: { newMessage: true } });
-    } catch (err) {
-      console.error("Error starting conversation:", err);
-      alert(`Failed to send message: ${err.message}`);
-    }
-  };
 
   const handleBuyNow = async () => {
     const buyer_uid = localStorage.getItem("buyer_uid");
@@ -152,15 +87,9 @@ function ViewProduct() {
         <p><strong>Description:</strong> {product.description || "No description available"}</p>
         <p><strong>Seller:</strong> {product.seller_name || "Unknown"}</p>
         
-        <div style={styles.buttonGroup}>
-          <button onClick={handleBuyNow} style={styles.buyButton}>
-            🛒 Buy Now
-          </button>
-          <button onClick={handleMessageSeller} style={styles.messageButton}>
-            <FiMessageCircle size={20} />
-            Message Seller
-          </button>
-        </div>
+        <button onClick={handleBuyNow} style={styles.buyButton}>
+          🛒 Buy Now
+        </button>
       </div>
     </div>
   );
@@ -196,13 +125,9 @@ const styles = {
     borderRadius: "8px",
     marginBottom: "15px",
   },
-  buttonGroup: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "20px",
-  },
   buyButton: {
-    flex: 1,
+    width: "100%",
+    marginTop: "20px",
     padding: "15px",
     background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     color: "#fff",
@@ -213,22 +138,6 @@ const styles = {
     cursor: "pointer",
     transition: "transform 0.2s, box-shadow 0.2s",
     boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
-  },
-  messageButton: {
-    flex: 1,
-    padding: "15px",
-    background: "#fff",
-    color: "#0891b2",
-    border: "2px solid #0891b2",
-    borderRadius: "10px",
-    fontSize: "1.1rem",
-    fontWeight: "bold",
-    cursor: "pointer",
-    transition: "all 0.2s",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
   },
 };
 

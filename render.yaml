@@ -9,7 +9,11 @@ services:
       - path: /*
         name: Cache-Control
         value: public, max-age=0, must-revalidate
+      - path: /static/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
     routes:
+      # Static assets - serve directly
       - type: rewrite
         source: /static/*
         destination: /static/:splat
@@ -28,6 +32,7 @@ services:
       - type: rewrite
         source: /robots.txt
         destination: /robots.txt
+      # Catch-all route - MUST be last to handle SPA routing
       - type: rewrite
         source: /*
         destination: /index.html

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import BackButton from "../components/BackButton";
-import { FiMapPin, FiMail, FiPhone, FiUser, FiMessageCircle } from "react-icons/fi";
+import { FiMapPin, FiMail, FiPhone, FiUser } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 
 import { BASE_URL } from "../config/api";
@@ -43,54 +43,6 @@ function ViewProfile() {
 
     fetchProfile();
   }, [id]);
-
-  const handleMessageUser = async () => {
-    const buyer_uid = localStorage.getItem("buyer_uid");
-    const buyer_name = localStorage.getItem("buyer_name");
-
-    if (!buyer_uid) {
-      alert("Please log in as a buyer to send messages.");
-      navigate("/buyer-login");
-      return;
-    }
-
-    // Don't allow messaging yourself
-    if (buyer_uid === id) {
-      alert("You cannot message yourself!");
-      return;
-    }
-
-    // Create initial message
-    try {
-      const messageData = {
-        sender_uid: buyer_uid,
-        sender_type: "buyer",
-        recipient_uid: id,
-        recipient_type: userType.toLowerCase(),
-        message: `Hi ${user.name}! I'd like to connect with you.`,
-      };
-
-      const res = await fetch(`${BASE_URL}/messages/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(messageData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error('Backend error:', errorData);
-        alert('Failed to send message. Please try again.');
-        return;
-      }
-
-      // Message sent successfully - navigate immediately
-      console.log('Message sent successfully, navigating to messages page...');
-      navigate("/buyer-dashboard/messages");
-    } catch (err) {
-      console.error("Error starting conversation:", err);
-      alert('Failed to send message. Please try again.');
-    }
-  };
 
   if (!user) {
     return <p style={{ padding: "20px" }}>Loading profile...</p>;
@@ -187,14 +139,6 @@ function ViewProfile() {
             </div>
           )}
         </div>
-
-        {/* Message Button - Only show if viewing a seller and logged in as buyer */}
-        {userType === "Seller" && (
-          <button onClick={handleMessageUser} style={styles.messageButton}>
-            <FiMessageCircle size={20} />
-            Message {user.name}
-          </button>
-        )}
       </div>
     </div>
   );
@@ -312,24 +256,6 @@ const styles = {
     color: colors.neutral.darkest,
     fontWeight: typography.fontWeight.medium,
     wordBreak: 'break-word',
-  },
-  messageButton: {
-    width: '100%',
-    padding: '1rem',
-    marginTop: '1.5rem',
-    background: gradients.ocean,
-    color: colors.neutral.white,
-    border: 'none',
-    borderRadius: borderRadius.lg,
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.semibold,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
-    transition: 'all 0.2s ease',
-    boxShadow: shadows.md,
   },
 
   // Responsive styles

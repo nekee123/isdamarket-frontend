@@ -146,37 +146,6 @@ export const updateOrderStatus = async (orderId, status) => {
   }
 };
 
-// === Messages ===
-export const getMessages = async (user1_uid, user2_uid) => {
-  try {
-    const res = await axios.get(`${BASE_URL}/messages/${user1_uid}/${user2_uid}`);
-    return res.data;
-  } catch (error) {
-    console.error("Error fetching messages:", error);
-    throw error;
-  }
-};
-
-export const sendMessage = async (messageData) => {
-  try {
-    const res = await axios.post(`${BASE_URL}/messages/`, messageData);
-    return res.data;
-  } catch (error) {
-    console.error("Error sending message:", error);
-    throw error;
-  }
-};
-
-export const getConversations = async (user_uid) => {
-  try {
-    const res = await axios.get(`${BASE_URL}/messages/conversations/${user_uid}`);
-    return res.data;
-  } catch (error) {
-    console.error("Error fetching conversations:", error);
-    throw error;
-  }
-};
-
 // === Cache Management ===
 export const clearCache = () => {
   cache.products = { data: null, timestamp: null };
