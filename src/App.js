@@ -1,27 +1,27 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { lazyRetry } from "./utils/lazyRetry";
+import { lazyWithRetry } from "./utils/lazyRetry";
 
-// Lazy load pages with retry logic to prevent white screen on refresh
-const HomePage = lazy(() => lazyRetry(() => import("./pages/HomePage")));
-const BuyerLogin = lazy(() => lazyRetry(() => import("./pages/BuyerLogin")));
-const SellerLogin = lazy(() => lazyRetry(() => import("./pages/SellerLogin")));
-const BuyerDashboard = lazy(() => lazyRetry(() => import("./pages/BuyerDashboard")));
-const SellerDashboard = lazy(() => lazyRetry(() => import("./pages/SellerDashboard")));
-const BuyerOrders = lazy(() => lazyRetry(() => import("./pages/MyOrders")));
-const BrowseFish = lazy(() => lazyRetry(() => import("./pages/BrowseFish")));
-const BuyerSettings = lazy(() => lazyRetry(() => import("./pages/BuyerSettings")));
-const SellerProducts = lazy(() => lazyRetry(() => import("./pages/SellerProducts")));
-const SellerOrders = lazy(() => lazyRetry(() => import("./pages/SellerOrders")));
-const SellerSettings = lazy(() => lazyRetry(() => import("./pages/SellerSettings")));
-const ViewProduct = lazy(() => lazyRetry(() => import("./pages/ViewProduct")));
-const ViewProfile = lazy(() => lazyRetry(() => import("./pages/ViewProfile")));
-const SellerProfile = lazy(() => lazyRetry(() => import("./pages/SellerProfile")));
-const NotFound = lazy(() => lazyRetry(() => import("./pages/NotFound")));
+// Lazy load pages with automatic retry logic to prevent white screen on refresh
+const HomePage = lazyWithRetry(() => import("./pages/HomePage"));
+const BuyerLogin = lazyWithRetry(() => import("./pages/BuyerLogin"));
+const SellerLogin = lazyWithRetry(() => import("./pages/SellerLogin"));
+const BuyerDashboard = lazyWithRetry(() => import("./pages/BuyerDashboard"));
+const SellerDashboard = lazyWithRetry(() => import("./pages/SellerDashboard"));
+const BuyerOrders = lazyWithRetry(() => import("./pages/MyOrders"));
+const BrowseFish = lazyWithRetry(() => import("./pages/BrowseFish"));
+const BuyerSettings = lazyWithRetry(() => import("./pages/BuyerSettings"));
+const SellerProducts = lazyWithRetry(() => import("./pages/SellerProducts"));
+const SellerOrders = lazyWithRetry(() => import("./pages/SellerOrders"));
+const SellerSettings = lazyWithRetry(() => import("./pages/SellerSettings"));
+const ViewProduct = lazyWithRetry(() => import("./pages/ViewProduct"));
+const ViewProfile = lazyWithRetry(() => import("./pages/ViewProfile"));
+const SellerProfile = lazyWithRetry(() => import("./pages/SellerProfile"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 function App() {
   return (

@@ -1,39 +1,43 @@
+import { lazy } from 'react';
+
 /**
- * Retry lazy loading with exponential backoff
- * Fixes white screen issues when chunks fail to load on page refresh
+ * Retry function for dynamic imports with exponential backoff
  * 
  * @param {Function} componentImport - The dynamic import function
- * @param {number} retries - Number of retry attempts (default: 5)
- * @param {number} interval - Initial retry interval in ms (default: 1000)
+ * @param {number} retriesLeft - Number of retry attempts left
+ * @param {number} interval - Current retry interval in ms
  * @returns {Promise} - Promise that resolves to the loaded component
  */
-export const lazyRetry = (componentImport, retries = 5, interval = 1000) => {
-  return new Promise((resolve, reject) => {
-    componentImport()
-      .then(resolve)
-      .catch((error) => {
-        // If we've exhausted retries, force a full page reload as last resort
-        if (retries === 0) {
-          console.error('Failed to load component after multiple retries:', error);
-          
-          // Check if it's a chunk loading error
-          if (error.name === 'ChunkLoadError' || error.message.includes('Loading chunk')) {
-            console.warn('Chunk load failed - reloading page...');
-            window.location.reload();
-            return;
-          }
-          
-          reject(error);
-          return;
-        }
+const retryImport = (componentImport, retriesLeft = 3, interval = 1000) => {
+  return componentImport().catch((error) => {
+    // If no retries left, reject
+    if (retriesLeft === 0) {
+      console.error('❌ Failed to load component after all retries:', error);
+      throw error;
+    }
 
-        // Log retry attempt
-        console.log(`Retrying lazy load... (${retries} attempts left)`);
-        
-        // Retry after interval with exponential backoff
-        setTimeout(() => {
-          lazyRetry(componentImport, retries - 1, interval * 1.5).then(resolve, reject);
-        }, interval);
-      });
+    // Log retry attempt
+    console.warn(`⚠️ Chunk load failed. Retrying... (${retriesLeft} attempts left)`);
+    
+    // Wait and retry with exponential backoff
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(retryImport(componentImport, retriesLeft - 1, interval * 1.5));
+      }, interval);
+    });
   });
 };
+
+/**
+ * Wraps React.lazy with automatic retry logic for chunk loading failures
+ * Fixes white screen issues when lazy-loaded chunks fail to load on page refresh
+ * 
+ * @param {Function} componentImport - The dynamic import function (e.g., () => import('./Component'))
+ * @returns {React.LazyExoticComponent} - Lazy component with retry logic
+ */
+export const lazyWithRetry = (componentImport) => {
+  return lazy(() => retryImport(componentImport));
+};
+
+// Legacy export for backward compatibility
+export const lazyRetry = retryImport;
