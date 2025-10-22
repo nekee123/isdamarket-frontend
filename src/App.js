@@ -41,6 +41,18 @@ function RouteDebugger() {
 function App() {
   console.log('🚀 App component rendering');
   
+  useEffect(() => {
+    console.log('✅ App mounted successfully');
+    console.log('📍 Current location:', window.location.pathname);
+    
+    // Clear any stale session storage on app mount
+    const chunkReloadFlag = sessionStorage.getItem('chunk-reload-attempted');
+    if (chunkReloadFlag) {
+      console.log('🧹 Clearing chunk reload flag');
+      sessionStorage.removeItem('chunk-reload-attempted');
+    }
+  }, []);
+  
   return (
     <ErrorBoundary>
       <Router>

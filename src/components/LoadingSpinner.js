@@ -38,6 +38,13 @@ const LoadingSpinner = ({ size = 'md', color = colors.primary.main, fullScreen =
     padding: '2rem',
   };
 
+  const textStyle = {
+    marginTop: '1rem',
+    color: colors.neutral.dark,
+    fontSize: '14px',
+    fontWeight: '500',
+  };
+
   return (
     <>
       <style>
@@ -46,10 +53,21 @@ const LoadingSpinner = ({ size = 'md', color = colors.primary.main, fullScreen =
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
         `}
       </style>
       <div style={containerStyle}>
-        <div style={spinnerStyle}></div>
+        <div>
+          <div style={spinnerStyle}></div>
+          {fullScreen && (
+            <div style={{ ...textStyle, animation: 'pulse 1.5s ease-in-out infinite' }}>
+              Loading...
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { preloadCriticalRoutes } from '../utils/preloadRoutes';
 
 const AuthContext = createContext();
 
@@ -46,6 +47,8 @@ export const AuthProvider = ({ children }) => {
         name: buyerName,
         profile_picture: buyerProfilePicture,
       });
+      // Preload buyer routes for faster navigation
+      preloadCriticalRoutes('buyer');
     }
 
     const sellerToken = localStorage.getItem('seller_token');
@@ -61,6 +64,8 @@ export const AuthProvider = ({ children }) => {
         name: sellerName,
         profile_picture: sellerProfilePicture,
       });
+      // Preload seller routes for faster navigation
+      preloadCriticalRoutes('seller');
     }
   }, []);
 
@@ -78,6 +83,8 @@ export const AuthProvider = ({ children }) => {
       name,
       profile_picture,
     });
+    // Preload buyer routes for faster navigation
+    preloadCriticalRoutes('buyer');
   };
 
   const loginSeller = (token, uid, name, profile_picture = null) => {
@@ -94,6 +101,8 @@ export const AuthProvider = ({ children }) => {
       name,
       profile_picture,
     });
+    // Preload seller routes for faster navigation
+    preloadCriticalRoutes('seller');
   };
 
   const logoutBuyer = () => {

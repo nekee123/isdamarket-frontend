@@ -8,7 +8,7 @@ import { lazy } from 'react';
  * @param {number} interval - Current retry interval in ms
  * @returns {Promise} - Promise that resolves to the loaded component
  */
-const retryImport = (componentImport, retriesLeft = 3, interval = 1000) => {
+const retryImport = (componentImport, retriesLeft = 2, interval = 300) => {
   return componentImport().catch((error) => {
     // If no retries left, reject
     if (retriesLeft === 0) {
@@ -19,10 +19,10 @@ const retryImport = (componentImport, retriesLeft = 3, interval = 1000) => {
     // Log retry attempt
     console.warn(`⚠️ Chunk load failed. Retrying... (${retriesLeft} attempts left)`);
     
-    // Wait and retry with exponential backoff
+    // Wait and retry with shorter intervals for faster loading
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(retryImport(componentImport, retriesLeft - 1, interval * 1.5));
+        resolve(retryImport(componentImport, retriesLeft - 1, interval * 2));
       }, interval);
     });
   });
