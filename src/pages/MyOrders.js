@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ReviewModal from "../components/ReviewModal";
+import BackButton from "../components/BackButton";
 import { useToast } from "../components/Toast";
 import { FiPackage, FiTruck, FiCheckCircle, FiXCircle, FiStar, FiPhone } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
@@ -169,6 +170,7 @@ function MyOrders() {
     <div style={styles.pageWrapper}>
       <ToastContainer />
       <Navbar userType="buyer" showSearch={true} />
+      <BackButton to="/buyer-dashboard" />
       
       <div style={styles.container}>
         <div style={styles.header}>

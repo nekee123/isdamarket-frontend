@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
+import BackButton from "../components/BackButton";
 import { useToast } from "../components/Toast";
 import { FiPlus, FiTrash2, FiEdit, FiImage, FiPackage, FiDollarSign } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
@@ -165,6 +166,7 @@ function SellerProducts() {
     <div style={styles.pageWrapper}>
       <ToastContainer />
       <Navbar userType="seller" showSearch={true} onSearch={handleSearch} />
+      <BackButton to="/seller-dashboard" />
       
       <div style={styles.container}>
         <div style={styles.header}>

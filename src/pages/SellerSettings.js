@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
+import BackButton from "../components/BackButton";
 import { useToast } from "../components/Toast";
 import { FiUser, FiMail, FiPhone, FiMapPin, FiCamera, FiSave } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
@@ -129,6 +130,7 @@ function SellerSettings() {
     <div style={styles.pageWrapper}>
       <ToastContainer />
       <Navbar userType="seller" showSearch={false} />
+      <BackButton to="/seller-dashboard" />
       
       <div style={styles.container}>
         <div style={styles.header}>

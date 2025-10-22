@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import LoadingSpinner from '../components/LoadingSpinner';
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import LoadingSpinner from "../components/LoadingSpinner";
+import BackButton from "../components/BackButton";
 import StarRating from '../components/StarRating';
 import ReviewCard from '../components/ReviewCard';
 import { useToast } from '../components/Toast';
@@ -148,6 +149,7 @@ function SellerProfile() {
     <div style={styles.pageWrapper}>
       <ToastContainer />
       <Navbar userType="buyer" showSearch={true} />
+      <BackButton />
       
       <div style={styles.container}>
         {/* Seller Header Card */}

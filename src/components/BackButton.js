@@ -22,19 +22,22 @@ const BackButton = ({ to }) => {
 const styles = {
   backButton: {
     position: "fixed",
-    top: "20px",
+    top: "80px", // Below navbar (navbar is typically 60-70px)
     left: "20px",
-    background: "#bd8ab1ff",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     color: "#fff",
     border: "none",
-    padding: "10px 20px",
-    borderRadius: "8px",
+    padding: "12px 24px",
+    borderRadius: "12px",
     cursor: "pointer",
-    fontWeight: "bold",
+    fontWeight: "600",
     fontSize: "14px",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-    zIndex: 1000,
+    boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
+    zIndex: 999,
     transition: "all 0.3s ease",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
   },
 };
 

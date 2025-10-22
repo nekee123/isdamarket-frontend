@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
+import BackButton from "../components/BackButton";
 import { useToast } from "../components/Toast";
 import { FiUser, FiMail, FiPhone, FiCamera, FiSave } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
@@ -126,6 +127,7 @@ function BuyerSettings() {
     <div style={styles.pageWrapper}>
       <ToastContainer />
       <Navbar userType="buyer" showSearch={false} />
+      <BackButton to="/buyer-dashboard" />
       
       <div style={styles.container}>
         <div style={styles.header}>
