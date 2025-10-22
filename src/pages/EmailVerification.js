@@ -2,63 +2,58 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../components/Toast";
-import { FiCheckCircle, FiXCircle, FiArrowLeft } from "react-icons/fi";
+import { FiCheckCircle, FiXCircle, FiMail } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 import { BASE_URL } from "../config/api";
 
 function EmailVerification() {
-  const [loading, setLoading] = useState(true);
-  const [verified, setVerified] = useState(false);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
   const { showToast, ToastContainer } = useToast();
 
+  const token = searchParams.get('token');
+
   useEffect(() => {
-    const token = searchParams.get('token');
-    
     if (!token) {
       setError('No verification token provided');
       setLoading(false);
       return;
     }
 
-    verifyEmail(token);
-  }, [searchParams]);
+    verifyEmail();
+  }, [token]);
 
-  const verifyEmail = async (token) => {
+  const verifyEmail = async () => {
     try {
       setLoading(true);
       
-      const res = await fetch(`${BASE_URL}/auth/verify/confirm?token=${encodeURIComponent(token)}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch(`${BASE_URL}/auth/verify/confirm?token=${token}`, {
+        method: "GET",
       });
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ detail: 'Verification failed' }));
-        throw new Error(errorData.detail || 'Verification failed');
+        const errorData = await res.json().catch(() => ({ detail: "Verification failed" }));
+        setError(errorData.detail || "Verification failed");
+        return;
       }
 
-      setVerified(true);
-      showToast('Email verified successfully!', 'success');
+      setSuccess(true);
+      showToast("Email verified successfully! You can now log in.", "success");
       
-      // Redirect to login after 2 seconds
+      // Redirect to login after 3 seconds
       setTimeout(() => {
-        navigate('/buyer-login?verified=1');
-      }, 2000);
+        navigate("/buyer-login?verified=1");
+      }, 3000);
       
     } catch (err) {
-      console.error('Verification error:', err);
-      setError(err.message);
-      showToast(err.message, 'error');
+      console.error("Verification error:", err);
+      setError("Failed to verify email. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleBackToLogin = () => {
-    navigate('/buyer-login');
   };
 
   if (loading) {
@@ -66,9 +61,10 @@ function EmailVerification() {
       <div style={styles.pageWrapper}>
         <ToastContainer />
         <div style={styles.container}>
-          <div style={styles.loadingContainer}>
+          <div style={styles.card}>
             <LoadingSpinner size="lg" />
-            <p style={styles.loadingText}>Verifying your email...</p>
+            <h2 style={styles.title}>Verifying your email...</h2>
+            <p style={styles.subtitle}>Please wait while we confirm your email address.</p>
           </div>
         </div>
       </div>
@@ -80,43 +76,47 @@ function EmailVerification() {
       <ToastContainer />
       <div style={styles.container}>
         <div style={styles.card}>
-          <div style={styles.iconContainer}>
-            {verified ? (
-              <FiCheckCircle size={64} style={styles.successIcon} />
-            ) : (
-              <FiXCircle size={64} style={styles.errorIcon} />
-            )}
-          </div>
-          
-          <h1 style={styles.title}>
-            {verified ? 'Email Verified!' : 'Verification Failed'}
-          </h1>
-          
-          <p style={styles.message}>
-            {verified 
-              ? 'Your email has been successfully verified. You can now log in to your account.'
-              : error || 'There was a problem verifying your email. The link may have expired or been used already.'
-            }
-          </p>
-          
-          <div style={styles.actions}>
-            <button 
-              onClick={handleBackToLogin}
-              style={styles.primaryButton}
-            >
-              {verified ? 'Go to Login' : 'Back to Login'}
-            </button>
-            
-            {!verified && (
+          {success ? (
+            <>
+              <div style={styles.successIcon}>
+                <FiCheckCircle size={64} />
+              </div>
+              <h2 style={styles.title}>Email Verified!</h2>
+              <p style={styles.subtitle}>
+                Your email has been successfully verified. You can now log in to your account.
+              </p>
               <button 
-                onClick={() => navigate('/buyer-login')}
-                style={styles.secondaryButton}
+                onClick={() => navigate("/buyer-login?verified=1")}
+                style={styles.loginButton}
               >
-                <FiArrowLeft size={16} />
-                Try Again
+                Go to Login
               </button>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <div style={styles.errorIcon}>
+                <FiXCircle size={64} />
+              </div>
+              <h2 style={styles.title}>Verification Failed</h2>
+              <p style={styles.subtitle}>
+                {error || "We couldn't verify your email. The link may be expired or invalid."}
+              </p>
+              <div style={styles.actions}>
+                <button 
+                  onClick={() => navigate("/buyer-login")}
+                  style={styles.loginButton}
+                >
+                  Back to Login
+                </button>
+                <button 
+                  onClick={() => navigate("/")}
+                  style={styles.homeButton}
+                >
+                  Go to Home
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -135,35 +135,23 @@ const styles = {
   },
   container: {
     width: '100%',
-    maxWidth: '480px',
+    maxWidth: '500px',
   },
   card: {
     background: colors.neutral.white,
     borderRadius: borderRadius.xl,
     padding: '3rem 2rem',
     boxShadow: shadows.lg,
-    border: `1px solid ${colors.neutral.light}`,
     textAlign: 'center',
-  },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  loadingText: {
-    fontSize: typography.fontSize.base,
-    color: colors.neutral.dark,
-    margin: 0,
-  },
-  iconContainer: {
-    marginBottom: '2rem',
+    border: `1px solid ${colors.neutral.light}`,
   },
   successIcon: {
     color: colors.success,
+    marginBottom: '1.5rem',
   },
   errorIcon: {
     color: colors.error,
+    marginBottom: '1.5rem',
   },
   title: {
     fontSize: typography.fontSize['2xl'],
@@ -172,42 +160,40 @@ const styles = {
     marginBottom: '1rem',
     fontFamily: typography.fontFamily.heading,
   },
-  message: {
+  subtitle: {
     fontSize: typography.fontSize.base,
     color: colors.neutral.dark,
-    lineHeight: '1.6',
     marginBottom: '2rem',
+    lineHeight: '1.6',
   },
   actions: {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
   },
-  primaryButton: {
-    padding: '1rem 2rem',
+  loginButton: {
+    width: '100%',
+    padding: '1rem',
+    border: 'none',
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.bold,
+    cursor: 'pointer',
     background: gradients.ocean,
     color: colors.neutral.white,
-    border: 'none',
+    boxShadow: shadows.md,
+    transition: 'all 0.2s ease',
+  },
+  homeButton: {
+    width: '100%',
+    padding: '0.75rem',
+    border: `2px solid ${colors.neutral.light}`,
     borderRadius: borderRadius.full,
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    boxShadow: shadows.sm,
-  },
-  secondaryButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
-    padding: '0.75rem 1.5rem',
     background: 'transparent',
     color: colors.neutral.dark,
-    border: `2px solid ${colors.neutral.light}`,
-    borderRadius: borderRadius.full,
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.medium,
-    cursor: 'pointer',
     transition: 'all 0.2s ease',
   },
 };

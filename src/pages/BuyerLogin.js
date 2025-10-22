@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../components/Toast";
-import { FiMail, FiLock, FiUser, FiPhone, FiArrowLeft, FiCheckCircle, FiRefreshCw } from "react-icons/fi";
+import { FiMail, FiLock, FiUser, FiPhone, FiArrowLeft } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 import { BASE_URL } from "../config/api";
 
@@ -11,10 +11,9 @@ function BuyerLogin() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
-  const [pendingEmail, setPendingEmail] = useState('');
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { buyerAuth, loginBuyer } = useAuth();
   const { showToast, ToastContainer } = useToast();
 
@@ -25,40 +24,13 @@ function BuyerLogin() {
     }
   }, [buyerAuth.isAuthenticated, navigate]);
 
-  // Check for verified parameter
+  // Check for verification success
   useEffect(() => {
-    const verified = searchParams.get('verified');
-    if (verified === '1') {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified') === '1') {
       showToast("Email verified successfully! You can now log in.", "success");
     }
-  }, [searchParams, showToast]);
-
-  // Handle resend verification email
-  const handleResendVerification = async () => {
-    if (!pendingEmail) return;
-    
-    try {
-      setResendLoading(true);
-      const res = await fetch(`${BASE_URL}/auth/verify/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: pendingEmail }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ detail: "Failed to send verification email" }));
-        showToast(errorData.detail || "Failed to send verification email", "error");
-        return;
-      }
-
-      showToast("Verification email sent! Check your Gmail.", "success");
-    } catch (err) {
-      console.error("Resend verification error:", err);
-      showToast("Failed to send verification email. Please try again.", "error");
-    } finally {
-      setResendLoading(false);
-    }
-  };
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -85,9 +57,9 @@ function BuyerLogin() {
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Login failed" }));
         
-        // Check if it's an email verification error
+        // Check if email is not verified
         if (res.status === 403 && errorData.reason === "email_unverified") {
-          setPendingEmail(email);
+          setUnverifiedEmail(email);
           setShowEmailVerification(true);
           return;
         }
@@ -173,6 +145,31 @@ function BuyerLogin() {
     }
   };
 
+  const handleResendVerification = async () => {
+    try {
+      setResendLoading(true);
+      
+      const res = await fetch(`${BASE_URL}/auth/verify/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: unverifiedEmail }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ detail: "Failed to resend verification" }));
+        showToast(errorData.detail || "Failed to resend verification", "error");
+        return;
+      }
+
+      showToast("Verification email sent! Check your Gmail.", "success");
+    } catch (err) {
+      console.error("Resend verification error:", err);
+      showToast("Failed to resend verification email", "error");
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   return (
     <div style={styles.pageWrapper}>
       <ToastContainer />
@@ -215,80 +212,77 @@ function BuyerLogin() {
             </button>
           </div>
 
-          {showEmailVerification ? (
-            <div style={styles.verificationContainer}>
-              <div style={styles.verificationIcon}>
-                <FiMail size={48} />
-              </div>
-              <h2 style={styles.verificationTitle}>Verify Your Email</h2>
-              <p style={styles.verificationText}>
-                We sent a verification link to <strong>{pendingEmail}</strong>
-              </p>
-              <p style={styles.verificationSubtext}>
-                Please check your Gmail and click the verification link to activate your account.
-              </p>
-              <div style={styles.verificationActions}>
-                <button 
-                  onClick={handleResendVerification}
-                  style={styles.resendButton}
-                  disabled={resendLoading}
-                >
-                  {resendLoading ? (
-                    <LoadingSpinner size="small" />
-                  ) : (
-                    <>
-                      <FiRefreshCw size={16} />
-                      Resend Email
-                    </>
-                  )}
-                </button>
-                <button 
-                  onClick={() => {
-                    setShowEmailVerification(false);
-                    setPendingEmail('');
-                  }}
-                  style={styles.backToLoginButton}
-                >
-                  Back to Login
-                </button>
-              </div>
-            </div>
-          ) : isLogin ? (
-            <form onSubmit={handleLogin} style={styles.form}>
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Email</label>
-                <div style={styles.inputWrapper}>
-                  <FiMail size={18} style={styles.inputIcon} />
-                  <input 
-                    type="email" 
-                    name="email" 
-                    placeholder="your@email.com" 
-                    required 
-                    style={styles.input}
-                    disabled={loading}
-                  />
+          {isLogin ? (
+            <>
+              {showEmailVerification ? (
+                <div style={styles.verificationCard}>
+                  <div style={styles.verificationIcon}>📧</div>
+                  <h2 style={styles.verificationTitle}>Verify Your Email</h2>
+                  <p style={styles.verificationText}>
+                    We sent a verification link to <strong>{unverifiedEmail}</strong>
+                  </p>
+                  <p style={styles.verificationSubtext}>
+                    Please check your Gmail and click the verification link to activate your account.
+                  </p>
+                  
+                  <div style={styles.verificationActions}>
+                    <button 
+                      onClick={handleResendVerification}
+                      style={styles.resendButton}
+                      disabled={resendLoading}
+                    >
+                      {resendLoading ? <LoadingSpinner size="small" /> : "Resend Verification Email"}
+                    </button>
+                    
+                    <button 
+                      onClick={() => {
+                        setShowEmailVerification(false);
+                        setUnverifiedEmail('');
+                      }}
+                      style={styles.backToLoginButton}
+                    >
+                      Back to Login
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <form onSubmit={handleLogin} style={styles.form}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Email</label>
+                    <div style={styles.inputWrapper}>
+                      <FiMail size={18} style={styles.inputIcon} />
+                      <input 
+                        type="email" 
+                        name="email" 
+                        placeholder="your@email.com" 
+                        required 
+                        style={styles.input}
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Password</label>
-                <div style={styles.inputWrapper}>
-                  <FiLock size={18} style={styles.inputIcon} />
-                  <input 
-                    type="password" 
-                    name="password" 
-                    placeholder="••••••••" 
-                    required 
-                    style={styles.input}
-                    disabled={loading}
-                  />
-                </div>
-              </div>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Password</label>
+                    <div style={styles.inputWrapper}>
+                      <FiLock size={18} style={styles.inputIcon} />
+                      <input 
+                        type="password" 
+                        name="password" 
+                        placeholder="••••••••" 
+                        required 
+                        style={styles.input}
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
 
-              <button type="submit" style={styles.submitButton} disabled={loading}>
-                {loading ? <LoadingSpinner size="small" /> : "Login"}
-              </button>
-            </form>
+                  <button type="submit" style={styles.submitButton} disabled={loading}>
+                    {loading ? <LoadingSpinner size="small" /> : "Login"}
+                  </button>
+                </form>
+              )}
+            </>
           ) : (
             <form onSubmit={handleSignUp} style={styles.form}>
               <div style={styles.inputGroup}>
@@ -542,13 +536,14 @@ const styles = {
     fontWeight: typography.fontWeight.semibold,
     textDecoration: 'none',
   },
-  verificationContainer: {
+  verificationCard: {
     textAlign: 'center',
-    padding: '2rem 0',
+    padding: '2rem',
   },
   verificationIcon: {
-    marginBottom: '1.5rem',
-    color: colors.primary.main,
+    fontSize: '4rem',
+    marginBottom: '1rem',
+    display: 'block',
   },
   verificationTitle: {
     fontSize: typography.fontSize.xl,
@@ -574,30 +569,32 @@ const styles = {
     gap: '1rem',
   },
   resendButton: {
+    width: '100%',
+    padding: '1rem',
+    border: 'none',
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.bold,
+    cursor: 'pointer',
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    boxShadow: shadows.md,
+    transition: 'all 0.2s ease',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '0.5rem',
-    padding: '0.875rem 1.5rem',
-    background: gradients.ocean,
-    color: colors.neutral.white,
-    border: 'none',
+  },
+  backToLoginButton: {
+    width: '100%',
+    padding: '0.75rem',
+    border: `2px solid ${colors.neutral.light}`,
     borderRadius: borderRadius.full,
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    boxShadow: shadows.sm,
-  },
-  backToLoginButton: {
-    padding: '0.75rem 1.5rem',
     background: 'transparent',
     color: colors.neutral.dark,
-    border: `2px solid ${colors.neutral.light}`,
-    borderRadius: borderRadius.full,
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.medium,
-    cursor: 'pointer',
     transition: 'all 0.2s ease',
   },
 };

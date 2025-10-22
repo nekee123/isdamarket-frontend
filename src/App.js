@@ -70,6 +70,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/buyer-login" element={<BuyerLogin />} />
           <Route path="/seller-login" element={<SellerLogin />} />
+          <Route path="/verify" element={<EmailVerification />} />
 
           {/* 🛒 Buyer Dashboard & Sub-pages */}
           <Route 
@@ -143,9 +144,6 @@ function App() {
           <Route path="/product/:id" element={<ViewProduct />} />
           <Route path="/profile/:id" element={<ViewProfile />} />
           <Route path="/seller/:sellerId" element={<SellerProfile />} />
-          
-          {/* 📧 Email Verification */}
-          <Route path="/verify" element={<EmailVerification />} />
           
           {/* 🚫 Catch-all route for 404 */}
           <Route path="*" element={<NotFound />} />
