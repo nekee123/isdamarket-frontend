@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../components/Toast";
-import { FiMail, FiLock, FiUser, FiPhone, FiArrowLeft } from "react-icons/fi";
+import { FiMail, FiLock, FiUser, FiPhone, FiArrowLeft, FiCheckCircle, FiRefreshCw } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
 import { BASE_URL } from "../config/api";
 
 function BuyerLogin() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { buyerAuth, loginBuyer } = useAuth();
   const { showToast, ToastContainer } = useToast();
 
@@ -20,6 +24,41 @@ function BuyerLogin() {
       navigate("/buyer-dashboard");
     }
   }, [buyerAuth.isAuthenticated, navigate]);
+
+  // Check for verified parameter
+  useEffect(() => {
+    const verified = searchParams.get('verified');
+    if (verified === '1') {
+      showToast("Email verified successfully! You can now log in.", "success");
+    }
+  }, [searchParams, showToast]);
+
+  // Handle resend verification email
+  const handleResendVerification = async () => {
+    if (!pendingEmail) return;
+    
+    try {
+      setResendLoading(true);
+      const res = await fetch(`${BASE_URL}/auth/verify/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: pendingEmail }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ detail: "Failed to send verification email" }));
+        showToast(errorData.detail || "Failed to send verification email", "error");
+        return;
+      }
+
+      showToast("Verification email sent! Check your Gmail.", "success");
+    } catch (err) {
+      console.error("Resend verification error:", err);
+      showToast("Failed to send verification email. Please try again.", "error");
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -45,6 +84,14 @@ function BuyerLogin() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Login failed" }));
+        
+        // Check if it's an email verification error
+        if (res.status === 403 && errorData.reason === "email_unverified") {
+          setPendingEmail(email);
+          setShowEmailVerification(true);
+          return;
+        }
+        
         showToast(errorData.detail || "Check your credentials", "error");
         return;
       }
@@ -168,7 +215,45 @@ function BuyerLogin() {
             </button>
           </div>
 
-          {isLogin ? (
+          {showEmailVerification ? (
+            <div style={styles.verificationContainer}>
+              <div style={styles.verificationIcon}>
+                <FiMail size={48} />
+              </div>
+              <h2 style={styles.verificationTitle}>Verify Your Email</h2>
+              <p style={styles.verificationText}>
+                We sent a verification link to <strong>{pendingEmail}</strong>
+              </p>
+              <p style={styles.verificationSubtext}>
+                Please check your Gmail and click the verification link to activate your account.
+              </p>
+              <div style={styles.verificationActions}>
+                <button 
+                  onClick={handleResendVerification}
+                  style={styles.resendButton}
+                  disabled={resendLoading}
+                >
+                  {resendLoading ? (
+                    <LoadingSpinner size="small" />
+                  ) : (
+                    <>
+                      <FiRefreshCw size={16} />
+                      Resend Email
+                    </>
+                  )}
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowEmailVerification(false);
+                    setPendingEmail('');
+                  }}
+                  style={styles.backToLoginButton}
+                >
+                  Back to Login
+                </button>
+              </div>
+            </div>
+          ) : isLogin ? (
             <form onSubmit={handleLogin} style={styles.form}>
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Email</label>
@@ -456,6 +541,64 @@ const styles = {
     color: colors.primary.main,
     fontWeight: typography.fontWeight.semibold,
     textDecoration: 'none',
+  },
+  verificationContainer: {
+    textAlign: 'center',
+    padding: '2rem 0',
+  },
+  verificationIcon: {
+    marginBottom: '1.5rem',
+    color: colors.primary.main,
+  },
+  verificationTitle: {
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.neutral.darkest,
+    marginBottom: '1rem',
+    fontFamily: typography.fontFamily.heading,
+  },
+  verificationText: {
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.dark,
+    marginBottom: '0.5rem',
+  },
+  verificationSubtext: {
+    fontSize: typography.fontSize.sm,
+    color: colors.neutral.medium,
+    marginBottom: '2rem',
+    lineHeight: '1.5',
+  },
+  verificationActions: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+  resendButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '0.875rem 1.5rem',
+    background: gradients.ocean,
+    color: colors.neutral.white,
+    border: 'none',
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: shadows.sm,
+  },
+  backToLoginButton: {
+    padding: '0.75rem 1.5rem',
+    background: 'transparent',
+    color: colors.neutral.dark,
+    border: `2px solid ${colors.neutral.light}`,
+    borderRadius: borderRadius.full,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.medium,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
 };
 

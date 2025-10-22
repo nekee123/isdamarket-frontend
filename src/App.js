@@ -23,6 +23,7 @@ const SellerSettings = lazyWithRetry(() => import("./pages/SellerSettings"));
 const ViewProduct = lazyWithRetry(() => import("./pages/ViewProduct"));
 const ViewProfile = lazyWithRetry(() => import("./pages/ViewProfile"));
 const SellerProfile = lazyWithRetry(() => import("./pages/SellerProfile"));
+const EmailVerification = lazyWithRetry(() => import("./pages/EmailVerification"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 console.log('✅ All lazy components defined');
@@ -142,6 +143,9 @@ function App() {
           <Route path="/product/:id" element={<ViewProduct />} />
           <Route path="/profile/:id" element={<ViewProfile />} />
           <Route path="/seller/:sellerId" element={<SellerProfile />} />
+          
+          {/* 📧 Email Verification */}
+          <Route path="/verify" element={<EmailVerification />} />
           
           {/* 🚫 Catch-all route for 404 */}
           <Route path="*" element={<NotFound />} />
