@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { preloadCriticalRoutes } from '../utils/preloadRoutes';
 
 const AuthContext = createContext();
