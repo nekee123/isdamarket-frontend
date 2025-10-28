@@ -10,9 +10,6 @@ import { BASE_URL } from "../config/api";
 function BuyerLogin() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [showEmailVerification, setShowEmailVerification] = useState(false);
-  const [unverifiedEmail, setUnverifiedEmail] = useState('');
-  const [resendLoading, setResendLoading] = useState(false);
   const navigate = useNavigate();
   const { buyerAuth, loginBuyer } = useAuth();
   const { showToast, ToastContainer } = useToast();
@@ -24,13 +21,6 @@ function BuyerLogin() {
     }
   }, [buyerAuth.isAuthenticated, navigate]);
 
-  // Check for verification success
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('verified') === '1') {
-      showToast("Email verified successfully! You can now log in.", "success");
-    }
-  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -56,14 +46,6 @@ function BuyerLogin() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Login failed" }));
-        
-        // Check if email is not verified
-        if (res.status === 403 && errorData.reason === "email_unverified") {
-          setUnverifiedEmail(email);
-          setShowEmailVerification(true);
-          return;
-        }
-        
         showToast(errorData.detail || "Check your credentials", "error");
         return;
       }
@@ -145,30 +127,6 @@ function BuyerLogin() {
     }
   };
 
-  const handleResendVerification = async () => {
-    try {
-      setResendLoading(true);
-      
-      const res = await fetch(`${BASE_URL}/auth/verify/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: unverifiedEmail }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ detail: "Failed to resend verification" }));
-        showToast(errorData.detail || "Failed to resend verification", "error");
-        return;
-      }
-
-      showToast("Verification email sent! Check your Gmail.", "success");
-    } catch (err) {
-      console.error("Resend verification error:", err);
-      showToast("Failed to resend verification email", "error");
-    } finally {
-      setResendLoading(false);
-    }
-  };
 
   return (
     <div style={styles.pageWrapper}>
@@ -213,40 +171,7 @@ function BuyerLogin() {
           </div>
 
           {isLogin ? (
-            <>
-              {showEmailVerification ? (
-                <div style={styles.verificationCard}>
-                  <div style={styles.verificationIcon}>📧</div>
-                  <h2 style={styles.verificationTitle}>Verify Your Email</h2>
-                  <p style={styles.verificationText}>
-                    We sent a verification link to <strong>{unverifiedEmail}</strong>
-                  </p>
-                  <p style={styles.verificationSubtext}>
-                    Please check your Gmail and click the verification link to activate your account.
-                  </p>
-                  
-                  <div style={styles.verificationActions}>
-                    <button 
-                      onClick={handleResendVerification}
-                      style={styles.resendButton}
-                      disabled={resendLoading}
-                    >
-                      {resendLoading ? <LoadingSpinner size="small" /> : "Resend Verification Email"}
-                    </button>
-                    
-                    <button 
-                      onClick={() => {
-                        setShowEmailVerification(false);
-                        setUnverifiedEmail('');
-                      }}
-                      style={styles.backToLoginButton}
-                    >
-                      Back to Login
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleLogin} style={styles.form}>
+            <form onSubmit={handleLogin} style={styles.form}>
                   <div style={styles.inputGroup}>
                     <label style={styles.label}>Email</label>
                     <div style={styles.inputWrapper}>
@@ -281,8 +206,6 @@ function BuyerLogin() {
                     {loading ? <LoadingSpinner size="small" /> : "Login"}
                   </button>
                 </form>
-              )}
-            </>
           ) : (
             <form onSubmit={handleSignUp} style={styles.form}>
               <div style={styles.inputGroup}>
@@ -535,67 +458,6 @@ const styles = {
     color: colors.primary.main,
     fontWeight: typography.fontWeight.semibold,
     textDecoration: 'none',
-  },
-  verificationCard: {
-    textAlign: 'center',
-    padding: '2rem',
-  },
-  verificationIcon: {
-    fontSize: '4rem',
-    marginBottom: '1rem',
-    display: 'block',
-  },
-  verificationTitle: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.neutral.darkest,
-    marginBottom: '1rem',
-    fontFamily: typography.fontFamily.heading,
-  },
-  verificationText: {
-    fontSize: typography.fontSize.base,
-    color: colors.neutral.dark,
-    marginBottom: '0.5rem',
-  },
-  verificationSubtext: {
-    fontSize: typography.fontSize.sm,
-    color: colors.neutral.medium,
-    marginBottom: '2rem',
-    lineHeight: '1.5',
-  },
-  verificationActions: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  resendButton: {
-    width: '100%',
-    padding: '1rem',
-    border: 'none',
-    borderRadius: borderRadius.full,
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.bold,
-    cursor: 'pointer',
-    background: gradients.ocean,
-    color: colors.neutral.white,
-    boxShadow: shadows.md,
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
-  },
-  backToLoginButton: {
-    width: '100%',
-    padding: '0.75rem',
-    border: `2px solid ${colors.neutral.light}`,
-    borderRadius: borderRadius.full,
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.semibold,
-    cursor: 'pointer',
-    background: 'transparent',
-    color: colors.neutral.dark,
-    transition: 'all 0.2s ease',
   },
 };
 

@@ -6,12 +6,28 @@ services:
     staticPublishPath: ./build
     pullRequestPreviewsEnabled: true
     headers:
-      - path: /*
+      # HTML files - short cache with revalidation
+      - path: /index.html
         name: Cache-Control
         value: public, max-age=0, must-revalidate
+      # Static assets - long cache (1 year)
       - path: /static/*
         name: Cache-Control
         value: public, max-age=31536000, immutable
+      # Images and fonts - medium cache (1 week)
+      - path: /*.png
+        name: Cache-Control
+        value: public, max-age=604800
+      - path: /*.jpg
+        name: Cache-Control
+        value: public, max-age=604800
+      - path: /*.ico
+        name: Cache-Control
+        value: public, max-age=604800
+      # Enable compression
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
     routes:
       # Static assets - serve directly with exact paths
       - type: rewrite
