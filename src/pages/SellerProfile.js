@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import LoadingSpinner from "../components/LoadingSpinner";
+import PageLoader from "../components/PageLoader";
 import BackButton from "../components/BackButton";
 import StarRating from '../components/StarRating';
 import ReviewCard from '../components/ReviewCard';
@@ -118,11 +118,10 @@ function SellerProfile() {
 
   if (loading) {
     return (
-      <div style={styles.pageWrapper}>
+      <>
         <Navbar userType="buyer" showSearch={true} />
-        <LoadingSpinner fullScreen={false} />
-        <Footer />
-      </div>
+        <PageLoader message="Please wait for a while..." submessage="Loading seller profile" />
+      </>
     );
   }
 

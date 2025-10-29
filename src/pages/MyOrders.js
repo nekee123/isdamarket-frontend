@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import LoadingSpinner from "../components/LoadingSpinner";
+import PageLoader from "../components/PageLoader";
 import ReviewModal from "../components/ReviewModal";
 import BackButton from "../components/BackButton";
 import { useToast } from "../components/Toast";
@@ -158,11 +158,10 @@ function MyOrders() {
 
   if (loading) {
     return (
-      <div style={styles.pageWrapper}>
+      <>
         <Navbar userType="buyer" showSearch={true} />
-        <LoadingSpinner fullScreen={false} />
-        <Footer />
-      </div>
+        <PageLoader message="Please wait for a while..." submessage="Loading your orders" />
+      </>
     );
   }
 
@@ -247,6 +246,15 @@ function MyOrders() {
                     >
                       <FiStar size={16} />
                       <span>Write Review</span>
+                    </button>
+                  )}
+                  {order.status === 'delivered' && order.reviewed && (
+                    <button 
+                      style={styles.viewReviewBtn}
+                      onClick={() => navigate(`/seller/${order.seller_uid}`)}
+                    >
+                      <FiStar size={16} />
+                      <span>View Review</span>
                     </button>
                   )}
                 </div>
@@ -454,6 +462,22 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     boxShadow: shadows.sm,
+  },
+  viewReviewBtn: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '0.75rem 1rem',
+    background: colors.neutral.lightest,
+    color: colors.primary.main,
+    border: `2px solid ${colors.primary.main}`,
+    borderRadius: borderRadius.full,
+    fontWeight: typography.fontWeight.semibold,
+    fontSize: typography.fontSize.sm,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
 };
 

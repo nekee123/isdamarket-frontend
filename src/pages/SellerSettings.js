@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import LoadingSpinner from "../components/LoadingSpinner";
+import PageLoader from "../components/PageLoader";
 import BackButton from "../components/BackButton";
 import { useToast } from "../components/Toast";
 import { FiUser, FiMail, FiPhone, FiMapPin, FiCamera, FiSave } from "react-icons/fi";
@@ -118,11 +118,10 @@ function SellerSettings() {
 
   if (loading) {
     return (
-      <div style={styles.pageWrapper}>
+      <>
         <Navbar userType="seller" showSearch={false} />
-        <LoadingSpinner fullScreen={false} />
-        <Footer />
-      </div>
+        <PageLoader message="Please wait for a while..." submessage="Loading your settings" />
+      </>
     );
   }
 

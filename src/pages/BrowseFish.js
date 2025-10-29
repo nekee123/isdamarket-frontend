@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
+import PageLoader from "../components/PageLoader";
 import BackButton from "../components/BackButton";
 import { useToast } from "../components/Toast";
 import { FiShoppingCart, FiMapPin, FiPackage, FiStar, FiUser, FiMessageCircle } from "react-icons/fi";
@@ -123,11 +124,10 @@ function BrowseFish() {
 
   if (loading) {
     return (
-      <div style={styles.pageWrapper}>
+      <>
         <Navbar userType="buyer" showSearch={true} />
-        <LoadingSpinner fullScreen={false} />
-        <Footer />
-      </div>
+        <PageLoader message="Please wait for a while..." submessage="Loading fresh fish products" />
+      </>
     );
   }
 
