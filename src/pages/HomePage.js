@@ -40,14 +40,14 @@ function HomePage() {
           <div style={styles.heroContent}>
             <div style={styles.badge}>
               <FiStar size={16} />
-              <span>Trusted by 10,000+ customers</span>
+              <span>Trusted by valued customers</span>
             </div>
             <h1 style={styles.heroTitle}>
               Fresh Fish,<br />
               <span style={styles.heroTitleGradient}>Delivered Daily</span>
             </h1>
             <p style={styles.heroSubtitle}>
-              Connect directly with local fishermen and get the freshest catch delivered straight to your door. Quality guaranteed, ocean to table.
+              Connect directly with local fishermen and get the freshest catch. Quality guaranteed, ocean to table.
             </p>
             <div style={styles.heroButtons}>
               <Link to="/buyer-login" style={styles.heroBtnPrimary}>
@@ -62,12 +62,12 @@ function HomePage() {
             </div>
             <div style={styles.heroStats}>
               <div style={styles.statItem}>
-                <div style={styles.statNumber}>500+</div>
+                <div style={styles.statNumber}>5+</div>
                 <div style={styles.statLabel}>Fresh Products</div>
               </div>
               <div style={styles.statDivider}></div>
               <div style={styles.statItem}>
-                <div style={styles.statNumber}>100+</div>
+                <div style={styles.statNumber}>10+</div>
                 <div style={styles.statLabel}>Local Sellers</div>
               </div>
               <div style={styles.statDivider}></div>
@@ -97,8 +97,8 @@ function HomePage() {
               <div style={styles.floatingCard2}>
                 <div style={styles.miniCardIcon}>🚚</div>
                 <div>
-                  <div style={styles.miniCardTitle}>Fast Delivery</div>
-                  <div style={styles.miniCardText}>Same day</div>
+                  <div style={styles.miniCardTitle}>Fast Transaction</div>
+                  <div style={styles.miniCardText}>No Waiting</div>
                 </div>
               </div>
             </div>
@@ -112,7 +112,7 @@ function HomePage() {
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>Why Choose IsdaMarket?</h2>
             <p style={styles.sectionSubtitle}>
-              The most trusted fish marketplace in the Philippines
+              The most trusted fish marketplace in the Tawi-tawi
             </p>
           </div>
           <div style={styles.featureGrid}>
@@ -129,9 +129,9 @@ function HomePage() {
               <div style={styles.featureIconWrapper}>
                 <FiTruck size={28} />
               </div>
-              <h3 style={styles.featureTitle}>Fast Delivery</h3>
+              <h3 style={styles.featureTitle}>Fast Negotiable</h3>
               <p style={styles.featureText}>
-                Same-day delivery available. We ensure your fish arrives fresh and ready to cook.
+                We ensure your fish receives fresh and ready to cook.
               </p>
             </div>
             <div style={styles.featureCard}>
@@ -162,7 +162,7 @@ function HomePage() {
           <div style={styles.ctaContent}>
             <h2 style={styles.ctaTitle}>Ready to Experience Fresh?</h2>
             <p style={styles.ctaText}>
-              Join thousands of satisfied customers enjoying the freshest fish delivered daily.
+              Join one of our satisfied customers enjoying the freshest fish daily.
             </p>
             <div style={styles.ctaButtons}>
               <Link to="/buyer-login" style={styles.ctaBtnPrimary}>

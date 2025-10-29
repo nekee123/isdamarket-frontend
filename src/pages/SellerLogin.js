@@ -57,9 +57,9 @@ function SellerLogin() {
     } catch (err) {
       console.error("Login error:", err);
       if (err.name === 'AbortError') {
-        showToast("Request timeout. Please check your connection and try again.", "error");
+        showToast("Server timeout. The backend or database might be starting up. Please wait 30 seconds and try again.", "error");
       } else if (err.message.includes('Failed to fetch')) {
-        showToast("Cannot connect to server. Make sure the backend is running.", "error");
+        showToast("Cannot connect to server. Backend or Neo4j database might be offline.", "error");
       } else {
         showToast("Connection error: " + err.message, "error");
       }
@@ -117,9 +117,9 @@ function SellerLogin() {
     } catch (err) {
       console.error("Sign up error:", err);
       if (err.name === 'AbortError') {
-        showToast("Request timeout. Server might be slow. Please try again.", "error");
+        showToast("Server timeout. The backend or database might be starting up. Please wait 30 seconds and try again.", "error");
       } else if (err.message.includes('Failed to fetch')) {
-        showToast("Cannot connect to server. Make sure the backend is running at " + BASE_URL, "error");
+        showToast("Cannot connect to server. Backend or Neo4j database might be offline.", "error");
       } else {
         showToast("Connection error: " + err.message, "error");
       }
