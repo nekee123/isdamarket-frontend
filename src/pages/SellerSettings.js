@@ -8,6 +8,7 @@ import BackButton from "../components/BackButton";
 import { useToast } from "../components/Toast";
 import { FiUser, FiMail, FiPhone, FiMapPin, FiCamera, FiSave } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
+import LoadingSpinner from '../components/LoadingSpinner';
 
 import { BASE_URL } from "../config/api";
 
