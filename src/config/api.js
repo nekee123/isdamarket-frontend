@@ -1,49 +1,55 @@
-// API Configuration
-// This file centralizes API URL configuration and provides fallback handling
+// Simple API configuration for local development
+const BASE_URL = '';  // Empty string because proxy handles it
 
-const getApiUrl = () => {
-  // First, try to get from environment variable
-  const envUrl = process.env.REACT_APP_API_URL;
+const apiCall = async (endpoint, options = {}) => {
+  const url = `${BASE_URL}${endpoint}`;
+  const method = options.method || 'GET';
   
-  if (envUrl) {
-    console.log('Using API URL from environment:', envUrl);
-    return envUrl;
-  }
-  
-  // Fallback for production if environment variable is not set
-  if (process.env.NODE_ENV === 'production') {
-    const productionUrl = 'https://isdamarket-3.onrender.com';
-    console.warn('REACT_APP_API_URL not set, using production fallback:', productionUrl);
-    return productionUrl;
-  }
-  
-  // Fallback for development
-  const devUrl = 'http://localhost:8000';
-  console.warn('REACT_APP_API_URL not set, using development fallback:', devUrl);
-  return devUrl;
-};
+  console.log(`API ${method}: ${url}`, options.body || '');
 
-export const BASE_URL = getApiUrl();
-
-// Helper function for API calls with error handling
-export const apiCall = async (endpoint, options = {}) => {
   try {
-    const url = `${BASE_URL}${endpoint}`;
-    console.log('API Call:', url);
-    
     const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         ...options.headers,
       },
+      body: options.body ? JSON.stringify(options.body) : undefined,
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error = new Error(errorData.message || `HTTP error ${response.status}`);
+      error.status = response.status;
+      error.data = errorData;
+      throw error;
+    }
+
+    return response.json();
     
-    return response;
   } catch (error) {
-    console.error('API Call Error:', error);
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      console.error('❌ Cannot connect to backend. Make sure:');
+      console.error('1. Backend is running: uvicorn app.main:app --reload');
+      console.error('2. Check terminal for "http://127.0.0.1:8000"');
+      console.error('3. Try opening http://127.0.0.1:8000/docs in browser');
+      throw new Error('Backend server is not running. Please start it.');
+    }
     throw error;
   }
 };
 
-export default BASE_URL;
+// API methods
+const api = {
+  get: (endpoint, options = {}) => apiCall(endpoint, { ...options, method: 'GET' }),
+  post: (endpoint, data, options = {}) => 
+    apiCall(endpoint, { ...options, method: 'POST', body: data }),
+  put: (endpoint, data, options = {}) => 
+    apiCall(endpoint, { ...options, method: 'PUT', body: data }),
+  delete: (endpoint, options = {}) => 
+    apiCall(endpoint, { ...options, method: 'DELETE' }),
+};
+
+export { api, BASE_URL };
+export default api;

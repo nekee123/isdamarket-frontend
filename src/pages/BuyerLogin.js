@@ -5,7 +5,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../components/Toast";
 import { FiMail, FiLock, FiUser, FiPhone, FiArrowLeft } from "react-icons/fi";
 import { colors, gradients, shadows, borderRadius, typography } from "../styles/theme";
-import { BASE_URL } from "../config/api";
+import { api } from "../config/api";
 
 function BuyerLogin() {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,7 +21,6 @@ function BuyerLogin() {
     }
   }, [buyerAuth.isAuthenticated, navigate]);
 
-
   const handleLogin = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -31,38 +30,20 @@ function BuyerLogin() {
     try {
       setLoading(true);
       
-      // Add timeout to fetch request
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const response = await api.post('/buyers/login', { email, password });
       
-      const res = await fetch(`${BASE_URL}/buyers/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ detail: "Login failed" }));
-        showToast(errorData.detail || "Check your credentials", "error");
-        return;
-      }
-
-      const data = await res.json();
-      loginBuyer(data.token, data.uid, data.name, data.profile_picture);
+      loginBuyer(
+        response.token, 
+        response.uid, 
+        response.name, 
+        response.profile_picture
+      );
       showToast("Login successful!", "success");
       navigate("/buyer-dashboard");
-    } catch (err) {
-      console.error("Login error:", err);
-      if (err.name === 'AbortError') {
-        showToast("Server timeout. The backend or database might be starting up. Please wait 30 seconds and try again.", "error");
-      } else if (err.message.includes('Failed to fetch')) {
-        showToast("Cannot connect to server. Backend or Neo4j database might be offline.", "error");
-      } else {
-        showToast("Connection error: " + err.message, "error");
-      }
+    } catch (error) {
+      console.error("Login error:", error);
+      const errorMessage = error.data?.message || error.message || "Login failed. Please try again.";
+      showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
@@ -76,7 +57,6 @@ function BuyerLogin() {
     const contact_number = form.contact.value;
     const password = form.password.value;
 
-    // Validate inputs
     if (!name.trim() || !email.trim() || !contact_number.trim() || !password.trim()) {
       showToast("Please fill in all fields", "error");
       return;
@@ -90,43 +70,29 @@ function BuyerLogin() {
     try {
       setLoading(true);
       
-      // Add timeout to fetch request
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
-      const res = await fetch(`${BASE_URL}/buyers/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, contact_number, password }),
-        signal: controller.signal,
+      const response = await api.post('/buyers/', {
+        name,
+        email,
+        contact_number,
+        password
       });
-      
-      clearTimeout(timeoutId);
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ detail: "Sign up failed" }));
-        showToast(errorData.detail || "Unknown error", "error");
-        return;
-      }
-
-      const data = await res.json();
-      loginBuyer(data.token, data.uid, data.name, data.profile_picture);
+      loginBuyer(
+        response.token, 
+        response.uid, 
+        response.name, 
+        response.profile_picture
+      );
       showToast("Account created successfully!", "success");
       navigate("/buyer-dashboard");
-    } catch (err) {
-      console.error("Sign up error:", err);
-      if (err.name === 'AbortError') {
-        showToast("Server timeout. The backend or database might be starting up. Please wait 30 seconds and try again.", "error");
-      } else if (err.message.includes('Failed to fetch')) {
-        showToast("Cannot connect to server. Backend or Neo4j database might be offline.", "error");
-      } else {
-        showToast("Connection error: " + err.message, "error");
-      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      const errorMessage = error.data?.message || error.message || "Signup failed. Please try again.";
+      showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div style={styles.pageWrapper}>
@@ -172,40 +138,40 @@ function BuyerLogin() {
 
           {isLogin ? (
             <form onSubmit={handleLogin} style={styles.form}>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Email</label>
-                    <div style={styles.inputWrapper}>
-                      <FiMail size={18} style={styles.inputIcon} />
-                      <input 
-                        type="email" 
-                        name="email" 
-                        placeholder="your@email.com" 
-                        required 
-                        style={styles.input}
-                        disabled={loading}
-                      />
-                    </div>
-                  </div>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Email</label>
+                <div style={styles.inputWrapper}>
+                  <FiMail size={18} style={styles.inputIcon} />
+                  <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="your@email.com" 
+                    required 
+                    style={styles.input}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
 
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Password</label>
-                    <div style={styles.inputWrapper}>
-                      <FiLock size={18} style={styles.inputIcon} />
-                      <input 
-                        type="password" 
-                        name="password" 
-                        placeholder="••••••••" 
-                        required 
-                        style={styles.input}
-                        disabled={loading}
-                      />
-                    </div>
-                  </div>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Password</label>
+                <div style={styles.inputWrapper}>
+                  <FiLock size={18} style={styles.inputIcon} />
+                  <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="••••••••" 
+                    required 
+                    style={styles.input}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
 
-                  <button type="submit" style={styles.submitButton} disabled={loading}>
-                    {loading ? <LoadingSpinner size="small" /> : "Login"}
-                  </button>
-                </form>
+              <button type="submit" style={styles.submitButton} disabled={loading}>
+                {loading ? <LoadingSpinner size="small" /> : "Login"}
+              </button>
+            </form>
           ) : (
             <form onSubmit={handleSignUp} style={styles.form}>
               <div style={styles.inputGroup}>
